@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+Color darkBG = Color(0xff252730);
+Color darkAccent = Color(0xff36393f);
+
 class LoginSignupPage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _LoginSignupPageState();
@@ -10,16 +13,30 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
 
   String _email;
   String _password;
+  String _name;
+  int _teamNumber;
   String _errorMessage;
 
   bool _isLoading;
   bool _isLoginForm;
 
-  void validateAndSubmit() async {}
+  bool validateAndSave() {
+    final form = _formKey.currentState;
+    if (form.validate()) {
+      form.save();
+      return true;
+    }
+    return false;
+  }
+
+  void validateAndSubmit() async {
+    if (validateAndSave()) {}
+  }
 
   void resetForm() {
     _formKey.currentState.reset();
     _errorMessage = '';
+    _teamNumber = null;
   }
 
   void toggleFormMode() {
@@ -39,9 +56,8 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
 
   @override
   Widget build(BuildContext context) {
-    //Color(0xff252730)
     return Scaffold(
-      backgroundColor: Color(0xff252730),
+      backgroundColor: darkBG,
       body: Stack(
         children: <Widget>[
           showForm(),
@@ -52,6 +68,25 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
   }
 
   Widget showForm() {
+    if (_isLoginForm) {
+      return Container(
+        padding: EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            shrinkWrap: true,
+            children: <Widget>[
+              showLogo(),
+              showEmailInput(),
+              showPasswordInput(),
+              showPrimaryButton(),
+              showSecondaryButton(),
+              showErrorMessage(),
+            ],
+          ),
+        ),
+      );
+    }
     return Container(
       padding: EdgeInsets.all(16.0),
       child: Form(
@@ -62,6 +97,8 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
             showLogo(),
             showEmailInput(),
             showPasswordInput(),
+            showNameInput(),
+            showTeamInput(),
             showPrimaryButton(),
             showSecondaryButton(),
             showErrorMessage(),
@@ -86,7 +123,7 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
   Widget showLogo() {
     double r = 60.0;
     return Padding(
-      padding: EdgeInsets.fromLTRB(0.0, 70.0, 0.0, 0.0),
+      padding: EdgeInsets.fromLTRB(0.0, _isLoginForm ? 70.0 : 25.0, 0.0, 0.0),
       child: Center(
         child: Container(
           width: r * 2,
@@ -103,7 +140,7 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
 
   Widget showEmailInput() {
     return Padding(
-      padding: EdgeInsets.fromLTRB(0.0, 70.0, 0.0, 0.0),
+      padding: EdgeInsets.fromLTRB(0.0, _isLoginForm ? 70.0 : 50.0, 0.0, 0.0),
       child: TextFormField(
         maxLines: 1,
         keyboardType: TextInputType.emailAddress,
@@ -124,7 +161,7 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
             ),
           ),
           filled: true,
-          fillColor: Color(0xff36393f),
+          fillColor: darkAccent,
         ),
         validator: (value) => value.isEmpty ? 'Email can\'t be empty' : null,
         onSaved: (value) => _email = value.trim(),
@@ -156,11 +193,95 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
             ),
           ),
           filled: true,
-          fillColor: Color(0xff36393f),
+          fillColor: darkAccent,
         ),
         validator: (value) => value.isEmpty ? 'Password can\'t be empty' : null,
         onSaved: (value) => _password = value.trim(),
         style: TextStyle(color: Colors.white, fontSize: 18.0),
+      ),
+    );
+  }
+
+  Widget showNameInput() {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(0.0, 15.0, 0.0, 0.0),
+      child: TextFormField(
+        maxLines: 1,
+        autofocus: false,
+        cursorColor: Colors.white,
+        decoration: InputDecoration(
+          contentPadding: EdgeInsets.all(10.0),
+          hintText: 'Full Name',
+          hintStyle: TextStyle(
+            fontSize: 18.0,
+            color: Colors.grey[400],
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.0),
+            borderSide: BorderSide(
+              width: 0,
+              style: BorderStyle.none,
+            ),
+          ),
+          filled: true,
+          fillColor: darkAccent,
+        ),
+        validator: (value) => value.isEmpty ? 'Name can\'t be empty' : null,
+        onSaved: (value) => _name = value.trim(),
+        style: TextStyle(color: Colors.white, fontSize: 18.0),
+      ),
+    );
+  }
+
+  Widget showTeamInput() {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(0.0, 15.0, 0.0, 0.0),
+      child: DropdownButtonFormField<int>(
+        value: _teamNumber,
+        icon: Icon(Icons.arrow_drop_down),
+        iconSize: 24,
+        validator: (value) => value == null ? 'Team number is required' : null,
+        decoration: InputDecoration(
+          contentPadding: EdgeInsets.all(10.0),
+          hintText: 'Team Number',
+          hintStyle: TextStyle(
+            fontSize: 18.0,
+            color: Colors.grey[400],
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.0),
+            borderSide: BorderSide(
+              width: 0,
+              style: BorderStyle.none,
+            ),
+          ),
+          filled: true,
+          fillColor: darkAccent,
+        ),
+        elevation: 5,
+        isExpanded: true,
+        style: TextStyle(color: Colors.white, fontSize: 18.0),
+        items: <DropdownMenuItem<int>>[
+          DropdownMenuItem(
+            value: 3015,
+            child: Text(
+              '3015',
+              style: TextStyle(color: Colors.white, fontSize: 18.0),
+            ),
+          ),
+          DropdownMenuItem(
+            value: 2716,
+            child: Text(
+              '2716',
+              style: TextStyle(color: Colors.white, fontSize: 18.0),
+            ),
+          ),
+        ],
+        onChanged: (int newValue) {
+          setState(() {
+            _teamNumber = newValue;
+          });
+        },
       ),
     );
   }
