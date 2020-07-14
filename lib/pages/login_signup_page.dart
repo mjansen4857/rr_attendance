@@ -163,7 +163,7 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
           filled: true,
           fillColor: darkAccent,
         ),
-        validator: (value) => value.isEmpty ? 'Email can\'t be empty' : null,
+        validator: (value) => value.isEmpty ? 'Email is required' : null,
         onSaved: (value) => _email = value.trim(),
         style: TextStyle(color: Colors.white, fontSize: 18.0),
       ),
@@ -195,7 +195,9 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
           filled: true,
           fillColor: darkAccent,
         ),
-        validator: (value) => value.isEmpty ? 'Password can\'t be empty' : null,
+        validator: (value) => value.length < 6
+            ? 'Password should be at least 6 characters long'
+            : null,
         onSaved: (value) => _password = value.trim(),
         style: TextStyle(color: Colors.white, fontSize: 18.0),
       ),
@@ -226,7 +228,7 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
           filled: true,
           fillColor: darkAccent,
         ),
-        validator: (value) => value.isEmpty ? 'Name can\'t be empty' : null,
+        validator: (value) => value.isEmpty ? 'Name is required' : null,
         onSaved: (value) => _name = value.trim(),
         style: TextStyle(color: Colors.white, fontSize: 18.0),
       ),
