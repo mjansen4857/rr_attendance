@@ -160,7 +160,7 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
     return Padding(
       padding: EdgeInsets.fromLTRB(0.0, _isLoginForm ? 70.0 : 25.0, 0.0, 0.0),
       child: Center(
-        child: Container(
+        child: SizedBox(
           width: r * 2,
           height: r * 2,
           child: CircleAvatar(

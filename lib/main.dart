@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:rr_attendance/color_palette.dart';
 import 'package:rr_attendance/pages/root_page.dart';
 import 'package:rr_attendance/services/authentication.dart';
 
@@ -12,7 +11,8 @@ class AttendanceApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Attendance',
-      theme: ThemeData(primarySwatch: Colors.indigo, canvasColor: darkAccent),
+      theme: ThemeData.dark(),
+//      theme: ThemeData(primarySwatch: Colors.indigo, canvasColor: darkAccent),
       home: RootPage(
         auth: Authentication(),
       ),
