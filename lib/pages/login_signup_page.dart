@@ -1,9 +1,14 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
-Color darkBG = Color(0xff252730);
-Color darkAccent = Color(0xff36393f);
+import 'package:rr_attendance/color_palette.dart';
+import 'package:rr_attendance/services/authentication.dart';
 
 class LoginSignupPage extends StatefulWidget {
+  final Authentication auth;
+  final VoidCallback loginCallback;
+
+  LoginSignupPage({this.auth, this.loginCallback});
+
   @override
   State<StatefulWidget> createState() => _LoginSignupPageState();
 }
@@ -30,7 +35,37 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
   }
 
   void validateAndSubmit() async {
-    if (validateAndSave()) {}
+    if (validateAndSave()) {
+      setState(() {
+        _errorMessage = '';
+        _isLoading = true;
+      });
+
+      FirebaseUser user;
+      try {
+        if (_isLoginForm) {
+          user = await widget.auth.signIn(_email, _password);
+          print('Signed in: ${user.uid}');
+        } else {
+          user = await widget.auth.signUp(_email, _password, _name);
+          user = await widget.auth.signIn(_email, _password);
+          print('Signed up user: ${user.uid}');
+        }
+        setState(() {
+          _isLoading = false;
+        });
+        if (user != null) {
+          widget.loginCallback();
+        }
+      } catch (e) {
+        print('Error: $e');
+        setState(() {
+          _isLoading = false;
+          _errorMessage = e.message;
+          _formKey.currentState.reset();
+        });
+      }
+    }
   }
 
   void resetForm() {
@@ -294,7 +329,7 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
       child: SizedBox(
         height: 40.0,
         child: RaisedButton(
-          elevation: 2.0,
+          elevation: 3.0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30.0),
           ),
@@ -324,13 +359,17 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
 
   Widget showErrorMessage() {
     if (_errorMessage.length > 0 && _errorMessage != null) {
-      return Text(
-        _errorMessage,
-        style: TextStyle(
-            fontSize: 13.0,
-            color: Colors.red,
-            height: 1.0,
-            fontWeight: FontWeight.w300),
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(0, 20.0, 0, 0),
+        child: Text(
+          _errorMessage,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+              fontSize: 14.0,
+              color: Colors.red,
+              height: 1.0,
+              fontWeight: FontWeight.w300),
+        ),
       );
     } else {
       return Container(
