@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:rr_attendance/color_palette.dart';
 import 'package:rr_attendance/custom_icons.dart';
+import 'package:rr_attendance/pages/leaderboard.dart';
 import 'package:rr_attendance/services/authentication.dart';
 
 class HomePage extends StatefulWidget {
@@ -59,7 +60,17 @@ class _HomePageState extends State<HomePage> {
                     Icons.timer,
                     color: Colors.grey,
                   ),
-                  title: Text('Track time'),
+                  title: Text('Home'),
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  leading: Icon(
+                    Icons.list,
+                    color: Colors.grey,
+                  ),
+                  title: Text('My Timecard'),
                   onTap: () {
                     Navigator.pop(context);
                   },
@@ -73,6 +84,10 @@ class _HomePageState extends State<HomePage> {
                   title: Text('Leaderboard'),
                   onTap: () {
                     Navigator.pop(context);
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => LeaderboardPage()));
                   },
                 )
               ],

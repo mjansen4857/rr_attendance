@@ -11,8 +11,8 @@ class AttendanceApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Attendance',
-      theme: ThemeData.dark(),
-//      theme: ThemeData(primarySwatch: Colors.indigo, canvasColor: darkAccent),
+//      theme: ThemeData.dark(),
+      theme: ThemeData(primarySwatch: Colors.red, brightness: Brightness.dark),
       home: RootPage(
         auth: Authentication(),
       ),
