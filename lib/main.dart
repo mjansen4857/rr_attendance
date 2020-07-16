@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rr_attendance/pages/root_page.dart';
 import 'package:rr_attendance/services/authentication.dart';
+import 'package:rr_attendance/services/database.dart';
 
 void main() {
   runApp(AttendanceApp());
@@ -15,6 +16,7 @@ class AttendanceApp extends StatelessWidget {
       theme: ThemeData(primarySwatch: Colors.red, brightness: Brightness.dark),
       home: RootPage(
         auth: Authentication(),
+        db: Database(),
       ),
     );
   }

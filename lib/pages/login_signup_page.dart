@@ -2,12 +2,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:rr_attendance/color_palette.dart';
 import 'package:rr_attendance/services/authentication.dart';
+import 'package:rr_attendance/services/database.dart';
 
 class LoginSignupPage extends StatefulWidget {
   final Authentication auth;
+  final Database db;
   final VoidCallback loginCallback;
 
-  LoginSignupPage({this.auth, this.loginCallback});
+  LoginSignupPage({this.auth, this.db, this.loginCallback});
 
   @override
   State<StatefulWidget> createState() => _LoginSignupPageState();
@@ -49,6 +51,7 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
         } else {
           user = await widget.auth.signUp(_email, _password, _name);
           user = await widget.auth.signIn(_email, _password);
+          await widget.db.addUser(user, _teamNumber);
           print('Signed up user: ${user.uid}');
         }
         setState(() {

@@ -3,13 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:rr_attendance/pages/home_page.dart';
 import 'package:rr_attendance/pages/login_signup_page.dart';
 import 'package:rr_attendance/services/authentication.dart';
+import 'package:rr_attendance/services/database.dart';
 
 enum AuthStatus { NOT_DETERMINED, NOT_LOGGED_IN, LOGGED_IN }
 
 class RootPage extends StatefulWidget {
   final Authentication auth;
+  final Database db;
 
-  RootPage({this.auth});
+  RootPage({this.auth, this.db});
 
   @override
   State<StatefulWidget> createState() => _RootPageState();
@@ -55,11 +57,15 @@ class _RootPageState extends State<RootPage> {
       case AuthStatus.NOT_DETERMINED:
         return buildLoadingScreen();
       case AuthStatus.NOT_LOGGED_IN:
-        return LoginSignupPage(auth: widget.auth, loginCallback: loginCallback);
+        return LoginSignupPage(
+            auth: widget.auth, db: widget.db, loginCallback: loginCallback);
       case AuthStatus.LOGGED_IN:
         if (_user != null)
           return HomePage(
-              user: _user, auth: widget.auth, logoutCallback: logoutCallback);
+              user: _user,
+              auth: widget.auth,
+              db: widget.db,
+              logoutCallback: logoutCallback);
         return buildLoadingScreen();
       default:
         return buildLoadingScreen();

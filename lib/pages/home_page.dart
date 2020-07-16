@@ -7,22 +7,25 @@ import 'package:rr_attendance/pages/settings_page.dart';
 import 'package:rr_attendance/pages/time_card_page.dart';
 import 'package:rr_attendance/pages/time_tracker_page.dart';
 import 'package:rr_attendance/services/authentication.dart';
+import 'package:rr_attendance/services/database.dart';
 
 enum PageState { TIME_TRACKER, TIME_CARD }
 
 class HomePage extends StatefulWidget {
   final FirebaseUser user;
   final Authentication auth;
+  final Database db;
   final VoidCallback logoutCallback;
 
-  HomePage({this.user, this.auth, this.logoutCallback});
+  HomePage({this.user, this.auth, this.db, this.logoutCallback});
 
   @override
   State<StatefulWidget> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  PageState _pageState;
+  PageState _pageState = PageState.TIME_TRACKER;
+  String _teamNumber = "";
 
   void signOut() async {
     try {
@@ -36,7 +39,11 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _pageState = PageState.TIME_TRACKER;
+    widget.db.getTeamNumber(widget.user).then((value) {
+      setState(() {
+        _teamNumber = value.toString();
+      });
+    });
   }
 
   @override
@@ -55,11 +62,17 @@ class _HomePageState extends State<HomePage> {
   Widget buildPageContent() {
     switch (_pageState) {
       case PageState.TIME_TRACKER:
-        return TimeTracker();
+        return TimeTracker(
+          user: widget.user,
+          db: widget.db,
+        );
       case PageState.TIME_CARD:
         return TimeCard();
       default:
-        return TimeTracker();
+        return TimeTracker(
+          user: widget.user,
+          db: widget.db,
+        );
     }
   }
 
@@ -76,7 +89,12 @@ class _HomePageState extends State<HomePage> {
                   accountEmail: Text(widget.user.email),
                   accountName: Text(widget.user.displayName),
                   currentAccountPicture: CircleAvatar(
-                    backgroundImage: AssetImage('images/rr_logo.jpg'),
+                    backgroundColor: Colors.grey[850],
+                    child: Text(
+                      _teamNumber,
+                      style: TextStyle(color: Colors.white, fontSize: 24),
+                    ),
+//                    backgroundImage: AssetImage('images/rr_logo.jpg'),
                   ),
                 ),
                 ListTile(
