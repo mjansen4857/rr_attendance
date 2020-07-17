@@ -15,10 +15,44 @@ class TimeTracker extends StatefulWidget {
 class _TimeTrackerState extends State<TimeTracker> {
   bool _isClockedIn = false;
 
-  void clockButtonPressed() {
-    setState(() {
-      _isClockedIn = !_isClockedIn;
+  @override
+  void initState() {
+    super.initState();
+    widget.db.getInTimestamp(widget.user).then((value) {
+      if (value != null) {
+        setState(() {
+          _isClockedIn = true;
+        });
+      } else {
+        setState(() {
+          _isClockedIn = false;
+        });
+      }
     });
+  }
+
+  void clockButtonPressed() {
+    if (_isClockedIn) {
+      widget.db.clockOutUser(widget.user).then((hours) {
+        final snackbar = SnackBar(
+          backgroundColor: Colors.grey[900],
+          content: Text(
+            'Successfully logged ${hours.toStringAsFixed(1)} hours.',
+            style: TextStyle(color: Colors.white, fontSize: 16),
+          ),
+        );
+        Scaffold.of(context).showSnackBar(snackbar);
+        setState(() {
+          _isClockedIn = false;
+        });
+      });
+    } else {
+      widget.db.clockInUser(widget.user).then((value) {
+        setState(() {
+          _isClockedIn = true;
+        });
+      });
+    }
   }
 
   @override
