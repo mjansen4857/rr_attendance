@@ -67,7 +67,10 @@ class _HomePageState extends State<HomePage> {
           db: widget.db,
         );
       case PageState.TIME_CARD:
-        return TimeCard();
+        return TimeCard(
+          user: widget.user,
+          db: widget.db,
+        );
       default:
         return TimeTracker(
           user: widget.user,

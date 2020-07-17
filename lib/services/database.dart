@@ -63,4 +63,16 @@ class Database {
     }
     return inDateDoc.setData({'hours': prevHours + hours}, merge: true);
   }
+
+  Future<QuerySnapshot> getTimecardDocs(FirebaseUser user) async {
+    DocumentReference userDoc = users.document(user.uid);
+    CollectionReference timecardCollection = userDoc.collection('timecard');
+    return timecardCollection.getDocuments();
+  }
+
+  Future<double> getTotalHours(FirebaseUser user) async {
+    DocumentReference userDoc = users.document(user.uid);
+    DocumentSnapshot userDocSnapshot = await userDoc.get();
+    return userDocSnapshot.data['total_hours'];
+  }
 }

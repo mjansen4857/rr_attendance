@@ -13,7 +13,10 @@ class AttendanceApp extends StatelessWidget {
     return MaterialApp(
       title: 'Attendance',
 //      theme: ThemeData.dark(),
-      theme: ThemeData(primarySwatch: Colors.red, brightness: Brightness.dark),
+      theme: ThemeData(
+          primarySwatch: Colors.indigo,
+          brightness: Brightness.dark,
+          accentColor: Colors.indigoAccent),
       home: RootPage(
         auth: Authentication(),
         db: Database(),
