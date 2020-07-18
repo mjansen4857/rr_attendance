@@ -60,12 +60,13 @@ class _TimeCardState extends State<TimeCard> {
           )),
           DataColumn(
               label: Text(
-            'Hours',
-            style: TextStyle(
-                color: Colors.grey[200],
-                fontSize: 26,
-                fontWeight: FontWeight.bold),
-          ))
+                'Hours',
+                style: TextStyle(
+                    color: Colors.grey[200],
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold),
+              ),
+              numeric: true)
         ],
         rows: buildDataRows(),
       ),

@@ -138,7 +138,10 @@ class _HomePageState extends State<HomePage> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => LeaderboardPage()));
+                            builder: (context) => LeaderboardPage(
+                                  user: widget.user,
+                                  db: widget.db,
+                                )));
                   },
                 )
               ],

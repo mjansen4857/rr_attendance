@@ -73,6 +73,12 @@ class Database {
   Future<double> getTotalHours(FirebaseUser user) async {
     DocumentReference userDoc = users.document(user.uid);
     DocumentSnapshot userDocSnapshot = await userDoc.get();
-    return userDocSnapshot.data['total_hours'];
+    return userDocSnapshot.data['total_hours'].toDouble();
+  }
+
+  Future<QuerySnapshot> getAllUserDocsFromTeam(int team) async {
+    QuerySnapshot querySnapshot =
+        await users.where('team', isEqualTo: team).getDocuments();
+    return querySnapshot;
   }
 }
