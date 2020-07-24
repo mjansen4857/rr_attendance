@@ -16,16 +16,24 @@ class TimeTracker extends StatefulWidget {
   State<StatefulWidget> createState() => _TimeTrackerState();
 }
 
-class _TimeTrackerState extends State<TimeTracker> {
+class _TimeTrackerState extends State<TimeTracker>
+    with SingleTickerProviderStateMixin {
   DateTime _clockInTimeDate;
   String _clockedInTime = '00:00:00';
   bool _isClockedIn = false;
   Timer _clockedInTimer;
   bool _isLoading = true;
 
+  AnimationController _buttonAnimController;
+  Animation _colorTween;
+
   @override
   void initState() {
     super.initState();
+    _buttonAnimController =
+        AnimationController(duration: Duration(milliseconds: 300), vsync: this);
+    _colorTween = ColorTween(begin: Colors.indigo, end: Colors.red[900])
+        .animate(_buttonAnimController);
     widget.db.getInTimestamp(widget.user).then((value) {
       if (value != null) {
         setState(() {
@@ -35,6 +43,7 @@ class _TimeTrackerState extends State<TimeTracker> {
           startTimer();
           _isLoading = false;
         });
+        _buttonAnimController.forward();
       } else {
         setState(() {
           _isClockedIn = false;
@@ -42,6 +51,7 @@ class _TimeTrackerState extends State<TimeTracker> {
           setClockedInTime();
           _isLoading = false;
         });
+        _buttonAnimController.reverse();
       }
     });
   }
@@ -50,6 +60,7 @@ class _TimeTrackerState extends State<TimeTracker> {
   void dispose() {
     super.dispose();
     stopTimer();
+    _buttonAnimController.dispose();
   }
 
   void setClockedInTime() {
@@ -84,14 +95,6 @@ class _TimeTrackerState extends State<TimeTracker> {
     });
     if (_isClockedIn) {
       widget.db.clockOutUser(widget.user).then((hours) {
-//        final snackbar = SnackBar(
-//          backgroundColor: Colors.transparent,
-//          content: Text(
-//            'Successfully logged ${hours.toStringAsFixed(1)} hours.',
-//            style: TextStyle(color: Colors.white, fontSize: 16),
-//          ),
-//        );
-//        Scaffold.of(context).showSnackBar(snackbar);
         setState(() {
           stopTimer();
           _isClockedIn = false;
@@ -99,6 +102,7 @@ class _TimeTrackerState extends State<TimeTracker> {
           setClockedInTime();
           _isLoading = false;
         });
+        _buttonAnimController.reverse();
       });
     } else {
       widget.db.clockInUser(widget.user).then((value) {
@@ -109,6 +113,7 @@ class _TimeTrackerState extends State<TimeTracker> {
           startTimer();
           _isLoading = false;
         });
+        _buttonAnimController.forward();
       });
     }
   }
@@ -157,6 +162,24 @@ class _TimeTrackerState extends State<TimeTracker> {
   }
 
   Widget buildClockButton() {
+    return AnimatedBuilder(
+      animation: _colorTween,
+      builder: (context, child) => SizedBox(
+        width: 150,
+        height: 40,
+        child: RaisedButton(
+          elevation: 3,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
+//          color: _isClockedIn ? Colors.red[800] : Colors.indigo,
+          color: _colorTween.value,
+          child: Text(_isClockedIn ? 'Sign out' : 'Sign in',
+              style: TextStyle(fontSize: 20.0, color: Colors.grey[200])),
+          onPressed: clockButtonPressed,
+        ),
+      ),
+    );
     return SizedBox(
       width: 150,
       height: 40,
@@ -165,7 +188,7 @@ class _TimeTrackerState extends State<TimeTracker> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30),
         ),
-        color: Colors.indigo,
+        color: _isClockedIn ? Colors.red[800] : Colors.indigo,
         child: Text(_isClockedIn ? 'Sign out' : 'Sign in',
             style: TextStyle(fontSize: 20.0, color: Colors.grey[200])),
         onPressed: clockButtonPressed,
@@ -175,9 +198,9 @@ class _TimeTrackerState extends State<TimeTracker> {
 
   Widget buildBackgroundWave() {
     return AnimatedOpacity(
-      opacity: _clockInTimeDate != null ? 1.0 : 0.0,
+      opacity: _isClockedIn ? 1.0 : 0.0,
       duration: Duration(milliseconds: 1000),
-      curve: Curves.ease,
+      curve: Curves.easeInOut,
       child: Container(
         height: 150,
         width: double.infinity,
