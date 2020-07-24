@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:rr_attendance/services/database.dart';
+import 'package:rr_attendance/widgets/wave/config.dart';
+import 'package:rr_attendance/widgets/wave/wave.dart';
 
 class TimeTracker extends StatefulWidget {
   final FirebaseUser user;
@@ -82,14 +84,14 @@ class _TimeTrackerState extends State<TimeTracker> {
     });
     if (_isClockedIn) {
       widget.db.clockOutUser(widget.user).then((hours) {
-        final snackbar = SnackBar(
-          backgroundColor: Colors.grey[900],
-          content: Text(
-            'Successfully logged ${hours.toStringAsFixed(1)} hours.',
-            style: TextStyle(color: Colors.white, fontSize: 16),
-          ),
-        );
-        Scaffold.of(context).showSnackBar(snackbar);
+//        final snackbar = SnackBar(
+//          backgroundColor: Colors.transparent,
+//          content: Text(
+//            'Successfully logged ${hours.toStringAsFixed(1)} hours.',
+//            style: TextStyle(color: Colors.white, fontSize: 16),
+//          ),
+//        );
+//        Scaffold.of(context).showSnackBar(snackbar);
         setState(() {
           stopTimer();
           _isClockedIn = false;
@@ -128,16 +130,20 @@ class _TimeTrackerState extends State<TimeTracker> {
     return Container(
       child: Stack(
         children: <Widget>[
+          Align(
+            alignment: FractionalOffset.bottomCenter,
+            child: buildBackgroundWave(),
+          ),
           Center(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(25),
                   child: Text(
                     _clockedInTime,
-                    style: TextStyle(fontSize: 64),
+                    style: TextStyle(fontSize: 76),
                   ),
                 ),
                 buildClockButton()
@@ -163,6 +169,37 @@ class _TimeTrackerState extends State<TimeTracker> {
         child: Text(_isClockedIn ? 'Sign out' : 'Sign in',
             style: TextStyle(fontSize: 20.0, color: Colors.grey[200])),
         onPressed: clockButtonPressed,
+      ),
+    );
+  }
+
+  Widget buildBackgroundWave() {
+    return AnimatedOpacity(
+      opacity: _clockInTimeDate != null ? 1.0 : 0.0,
+      duration: Duration(milliseconds: 1000),
+      curve: Curves.ease,
+      child: Container(
+        height: 150,
+        width: double.infinity,
+        child: WaveWidget(
+          backgroundColor: Colors.transparent,
+          size: Size(double.infinity, double.infinity),
+          waveAmplitude: 5,
+          wavePhase: 25,
+          waveFrequency: 1.0,
+          config: CustomConfig(
+            gradients: [
+              [Colors.indigo[700], Color(0xee303f9f)],
+              [Colors.indigo[600], Color(0x773949ab)],
+              [Colors.indigo[500], Color(0x663f51b5)],
+              [Colors.indigo[400], Color(0x555c6bc0)],
+            ],
+            gradientBegin: Alignment.bottomCenter,
+            gradientEnd: Alignment.topCenter,
+            durations: [35000, 19440, 13800, 10000],
+            heightPercentages: [0.10, 0.15, 0.20, 0.25],
+          ),
+        ),
       ),
     );
   }
