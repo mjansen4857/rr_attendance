@@ -168,17 +168,45 @@ class _TimeTrackerState extends State<TimeTracker>
   }
 
   Widget buildTimeTicker() {
+    TextStyle digitStyle = TextStyle(fontSize: 86, color: Colors.grey[100]);
+    Text separator = Text(':', style: digitStyle);
     return Card(
       child: Center(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Text(
-            _clockedInTime,
-            style: TextStyle(fontSize: 76, color: Colors.grey[100]),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              buildAnimatedDigit(_clockedInTime[0], digitStyle),
+              buildAnimatedDigit(_clockedInTime[1], digitStyle),
+              separator,
+              buildAnimatedDigit(_clockedInTime[3], digitStyle),
+              buildAnimatedDigit(_clockedInTime[4], digitStyle),
+              separator,
+              buildAnimatedDigit(_clockedInTime[6], digitStyle),
+              buildAnimatedDigit(_clockedInTime[7], digitStyle),
+            ],
           ),
         ),
       ),
       color: darkAccent,
+    );
+  }
+
+  Widget buildAnimatedDigit(String value, TextStyle style) {
+    return AnimatedSwitcher(
+      duration: Duration(milliseconds: 200),
+      transitionBuilder: (Widget child, Animation<double> animation) {
+        return FadeTransition(
+          child: child,
+          opacity: animation,
+        );
+      },
+      child: Text(
+        value,
+        key: ValueKey<String>(value),
+        style: style,
+      ),
     );
   }
 
