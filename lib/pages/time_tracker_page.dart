@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:rr_attendance/color_palette.dart';
 import 'package:rr_attendance/services/database.dart';
 import 'package:rr_attendance/widgets/wave/config.dart';
 import 'package:rr_attendance/widgets/wave/wave.dart';
@@ -25,14 +26,14 @@ class _TimeTrackerState extends State<TimeTracker>
   bool _isLoading = true;
 
   AnimationController _buttonAnimController;
-  Animation _colorTween;
+  Animation _buttonColorTween;
 
   @override
   void initState() {
     super.initState();
     _buttonAnimController =
         AnimationController(duration: Duration(milliseconds: 300), vsync: this);
-    _colorTween = ColorTween(begin: Colors.indigo, end: Colors.red[700])
+    _buttonColorTween = ColorTween(begin: Colors.indigo, end: Colors.red[700])
         .animate(_buttonAnimController);
     widget.db.getInTimestamp(widget.user).then((value) {
       if (value != null) {
@@ -139,21 +140,26 @@ class _TimeTrackerState extends State<TimeTracker>
             alignment: FractionalOffset.bottomCenter,
             child: buildBackgroundWave(),
           ),
-          Center(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.all(25),
-                  child: Text(
-                    _clockedInTime,
-                    style: TextStyle(fontSize: 76),
-                  ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: buildTimeTicker(),
+              ),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.all(32),
+                      child: buildClockButton(),
+                    )
+                  ],
                 ),
-                buildClockButton()
-              ],
-            ),
+              ),
+            ],
           ),
           showLoading()
         ],
@@ -161,13 +167,28 @@ class _TimeTrackerState extends State<TimeTracker>
     );
   }
 
+  Widget buildTimeTicker() {
+    return Card(
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            _clockedInTime,
+            style: TextStyle(fontSize: 76, color: Colors.grey[100]),
+          ),
+        ),
+      ),
+      color: darkAccent,
+    );
+  }
+
   Widget buildClockButton() {
     return AnimatedBuilder(
-      animation: _colorTween,
+      animation: _buttonColorTween,
       builder: (context, child) => RawMaterialButton(
         onPressed: clockButtonPressed,
         elevation: 3,
-        fillColor: _colorTween.value,
+        fillColor: _buttonColorTween.value,
         padding: EdgeInsets.all(12),
         shape: CircleBorder(),
         child: Icon(
@@ -182,7 +203,7 @@ class _TimeTrackerState extends State<TimeTracker>
   Widget buildBackgroundWave() {
     return AnimatedOpacity(
       opacity: _isClockedIn ? 1.0 : 0.0,
-      duration: Duration(milliseconds: 1000),
+      duration: Duration(milliseconds: 500),
       curve: Curves.easeInOut,
       child: Container(
         height: 150,
