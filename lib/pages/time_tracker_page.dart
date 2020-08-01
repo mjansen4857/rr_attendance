@@ -32,7 +32,7 @@ class _TimeTrackerState extends State<TimeTracker>
     super.initState();
     _buttonAnimController =
         AnimationController(duration: Duration(milliseconds: 300), vsync: this);
-    _colorTween = ColorTween(begin: Colors.indigo, end: Colors.red[900])
+    _colorTween = ColorTween(begin: Colors.indigo, end: Colors.red[700])
         .animate(_buttonAnimController);
     widget.db.getInTimestamp(widget.user).then((value) {
       if (value != null) {
@@ -164,34 +164,17 @@ class _TimeTrackerState extends State<TimeTracker>
   Widget buildClockButton() {
     return AnimatedBuilder(
       animation: _colorTween,
-      builder: (context, child) => SizedBox(
-        width: 150,
-        height: 40,
-        child: RaisedButton(
-          elevation: 3,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30),
-          ),
-//          color: _isClockedIn ? Colors.red[800] : Colors.indigo,
-          color: _colorTween.value,
-          child: Text(_isClockedIn ? 'Sign out' : 'Sign in',
-              style: TextStyle(fontSize: 20.0, color: Colors.grey[200])),
-          onPressed: clockButtonPressed,
-        ),
-      ),
-    );
-    return SizedBox(
-      width: 150,
-      height: 40,
-      child: RaisedButton(
-        elevation: 3,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30),
-        ),
-        color: _isClockedIn ? Colors.red[800] : Colors.indigo,
-        child: Text(_isClockedIn ? 'Sign out' : 'Sign in',
-            style: TextStyle(fontSize: 20.0, color: Colors.grey[200])),
+      builder: (context, child) => RawMaterialButton(
         onPressed: clockButtonPressed,
+        elevation: 3,
+        fillColor: _colorTween.value,
+        padding: EdgeInsets.all(12),
+        shape: CircleBorder(),
+        child: Icon(
+          _isClockedIn ? Icons.timer_off : Icons.timer,
+          size: 48,
+          color: Colors.grey[100],
+        ),
       ),
     );
   }
