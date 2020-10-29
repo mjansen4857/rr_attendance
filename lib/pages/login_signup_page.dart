@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:rr_attendance/color_palette.dart';
 import 'package:rr_attendance/services/authentication.dart';
 import 'package:rr_attendance/services/database.dart';
 
@@ -95,7 +94,7 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: darkBG,
+      // backgroundColor: darkBG,
       body: Stack(
         children: <Widget>[
           showForm(),
@@ -199,7 +198,7 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
             ),
           ),
           filled: true,
-          fillColor: darkAccent,
+          // fillColor: darkAccent,
         ),
         validator: (value) => value.isEmpty ? 'Email is required' : null,
         onSaved: (value) => _email = value.trim(),
@@ -231,7 +230,7 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
             ),
           ),
           filled: true,
-          fillColor: darkAccent,
+          // fillColor: darkAccent,
         ),
         validator: (value) => value.length < 6
             ? 'Password should be at least 6 characters long'
@@ -264,7 +263,7 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
             ),
           ),
           filled: true,
-          fillColor: darkAccent,
+          // fillColor: darkAccent,
         ),
         validator: (value) => value.isEmpty ? 'Name is required' : null,
         onSaved: (value) => _name = value.trim(),
@@ -296,7 +295,7 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
             ),
           ),
           filled: true,
-          fillColor: darkAccent,
+          // fillColor: darkAccent,
         ),
         elevation: 5,
         isExpanded: true,

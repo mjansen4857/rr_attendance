@@ -30,11 +30,9 @@ class Database {
     if (inTime != null) {
       int dSeconds = Timestamp.now().seconds - inTime.seconds;
       DocumentReference userDoc = users.document(user.uid);
-      DocumentSnapshot userDocSnapshot = await userDoc.get();
       double hours = dSeconds / 60.0 / 60.0;
       await userDoc.setData({
         'in_timestamp': null,
-        'total_hours': userDocSnapshot.data['total_hours'] + hours
       }, merge: true);
       await addHoursToUserDay(user, hours, inTime);
       return hours;

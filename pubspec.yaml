@@ -33,6 +33,7 @@ dependencies:
   cloud_firestore: ^0.13.7
 
 dev_dependencies:
+  flutter_launcher_icons: ^0.8.0
   flutter_test:
     sdk: flutter
 
@@ -81,3 +82,11 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+
+flutter_icons:
+  image_path_android: 'images/android_icon.png'
+  adaptive_icon_background: '#3f51b5'
+  adaptive_icon_foreground: 'images/android_icon_foreground.png'
+  image_path_ios: 'images/ios_icon.png'
+  android: true
+  ios: true

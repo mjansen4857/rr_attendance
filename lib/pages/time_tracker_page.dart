@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:rr_attendance/color_palette.dart';
 import 'package:rr_attendance/services/database.dart';
 import 'package:rr_attendance/widgets/wave/config.dart';
 import 'package:rr_attendance/widgets/wave/wave.dart';
@@ -177,36 +176,19 @@ class _TimeTrackerState extends State<TimeTracker>
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              buildAnimatedDigit(_clockedInTime[0], digitStyle),
-              buildAnimatedDigit(_clockedInTime[1], digitStyle),
+              Text(_clockedInTime[0], style: digitStyle),
+              Text(_clockedInTime[1], style: digitStyle),
               separator,
-              buildAnimatedDigit(_clockedInTime[3], digitStyle),
-              buildAnimatedDigit(_clockedInTime[4], digitStyle),
+              Text(_clockedInTime[3], style: digitStyle),
+              Text(_clockedInTime[4], style: digitStyle),
               separator,
-              buildAnimatedDigit(_clockedInTime[6], digitStyle),
-              buildAnimatedDigit(_clockedInTime[7], digitStyle),
+              Text(_clockedInTime[6], style: digitStyle),
+              Text(_clockedInTime[7], style: digitStyle),
             ],
           ),
         ),
       ),
-      color: darkAccent,
-    );
-  }
-
-  Widget buildAnimatedDigit(String value, TextStyle style) {
-    return AnimatedSwitcher(
-      duration: Duration(milliseconds: 200),
-      transitionBuilder: (Widget child, Animation<double> animation) {
-        return FadeTransition(
-          child: child,
-          opacity: animation,
-        );
-      },
-      child: Text(
-        value,
-        key: ValueKey<String>(value),
-        style: style,
-      ),
+      // color: darkAccent,
     );
   }
 

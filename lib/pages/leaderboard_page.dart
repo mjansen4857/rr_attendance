@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:rr_attendance/color_palette.dart';
 import 'package:rr_attendance/services/database.dart';
 
 class LeaderboardPage extends StatefulWidget {
@@ -53,18 +52,24 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
 
   @override
   Widget build(BuildContext context) {
+    return Stack(
+      children: <Widget>[
+        TabBarView(children: <Widget>[build3015Tab(), build2716Tab()]),
+        showLoading(),
+      ],
+    );
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Leaderboard'),
-          backgroundColor: Colors.indigo,
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
+          // title: Text('Leaderboard'),
+          // backgroundColor: Colors.indigo,
+          // leading: IconButton(
+          //   icon: Icon(Icons.arrow_back),
+          //   onPressed: () {
+          //     Navigator.pop(context);
+          //   },
+          // ),
           bottom: TabBar(
             indicatorColor: Colors.white,
             tabs: <Widget>[
@@ -77,7 +82,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
             ],
           ),
         ),
-        backgroundColor: darkBG,
+        // backgroundColor: darkBG,
         body: Stack(
           children: <Widget>[
             TabBarView(children: <Widget>[build3015Tab(), build2716Tab()]),

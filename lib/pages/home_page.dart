@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:rr_attendance/color_palette.dart';
 import 'package:rr_attendance/custom_icons.dart';
 import 'package:rr_attendance/pages/leaderboard_page.dart';
 import 'package:rr_attendance/pages/settings_page.dart';
@@ -9,7 +8,7 @@ import 'package:rr_attendance/pages/time_tracker_page.dart';
 import 'package:rr_attendance/services/authentication.dart';
 import 'package:rr_attendance/services/database.dart';
 
-enum PageState { TIME_TRACKER, TIME_CARD }
+enum PageState { TIME_TRACKER, TIME_CARD, LEADERBOARD }
 
 class HomePage extends StatefulWidget {
   final FirebaseUser user;
@@ -48,29 +47,62 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: darkBG,
-      appBar: AppBar(
-        title: Text('Attendance'),
-        backgroundColor: Colors.indigo,
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        // backgroundColor: darkBG,
+        appBar: buildAppBar(),
+        drawer: buildDrawer(),
+        body: buildPageContent(),
       ),
-      drawer: buildDrawer(),
-      body: buildPageContent(),
     );
+  }
+
+  Widget buildAppBar() {
+    switch (_pageState) {
+      case PageState.TIME_CARD:
+        return AppBar(
+          title: Text('Time Card'),
+          backgroundColor: Colors.indigo,
+        );
+      case PageState.LEADERBOARD:
+        return AppBar(
+          title: Text('Leaderboard'),
+          backgroundColor: Colors.indigo,
+          bottom: TabBar(
+            indicatorColor: Colors.white,
+            tabs: <Widget>[
+              Tab(
+                text: '3015',
+              ),
+              Tab(
+                text: '2716',
+              )
+            ],
+          ),
+        );
+      case PageState.TIME_TRACKER:
+      default:
+        return AppBar(
+          title: Text('Time Tracker'),
+          backgroundColor: Colors.indigo,
+        );
+    }
   }
 
   Widget buildPageContent() {
     switch (_pageState) {
-      case PageState.TIME_TRACKER:
-        return TimeTracker(
-          user: widget.user,
-          db: widget.db,
-        );
       case PageState.TIME_CARD:
         return TimeCard(
           user: widget.user,
           db: widget.db,
         );
+      case PageState.LEADERBOARD:
+        return LeaderboardPage(
+          user: widget.user,
+          db: widget.db,
+        );
+      case PageState.TIME_TRACKER:
       default:
         return TimeTracker(
           user: widget.user,
@@ -135,13 +167,16 @@ class _HomePageState extends State<HomePage> {
                   title: Text('Leaderboard'),
                   onTap: () {
                     Navigator.pop(context);
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => LeaderboardPage(
-                                  user: widget.user,
-                                  db: widget.db,
-                                )));
+                    setState(() {
+                      _pageState = PageState.LEADERBOARD;
+                    });
+                    // Navigator.push(
+                    //     context,
+                    //     MaterialPageRoute(
+                    //         builder: (context) => LeaderboardPage(
+                    //               user: widget.user,
+                    //               db: widget.db,
+                    //             )));
                   },
                 )
               ],

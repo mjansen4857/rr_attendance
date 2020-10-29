@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:rr_attendance/color_palette.dart';
 
 class SettingsPage extends StatefulWidget {
   @override
@@ -20,7 +19,7 @@ class _SettingsPageState extends State<SettingsPage> {
           },
         ),
       ),
-      backgroundColor: darkBG,
+      // backgroundColor: darkBG,
       body: Container(
         child: Center(
           child: Text('Settings'),
