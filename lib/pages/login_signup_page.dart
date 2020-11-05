@@ -94,7 +94,7 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: darkBG,
+      // backgroundColor: CustomColors.background,
       body: Stack(
         children: <Widget>[
           showForm(),
@@ -275,52 +275,58 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
   Widget showTeamInput() {
     return Padding(
       padding: EdgeInsets.fromLTRB(0.0, 15.0, 0.0, 0.0),
-      child: DropdownButtonFormField<int>(
-        value: _teamNumber,
-        icon: Icon(Icons.arrow_drop_down),
-        iconSize: 24,
-        validator: (value) => value == null ? 'Team number is required' : null,
-        decoration: InputDecoration(
-          contentPadding: EdgeInsets.all(10.0),
-          hintText: 'Team Number',
-          hintStyle: TextStyle(
-            fontSize: 18.0,
-            color: Colors.grey[400],
-          ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.0),
-            borderSide: BorderSide(
-              width: 0,
-              style: BorderStyle.none,
-            ),
-          ),
-          filled: true,
-          // fillColor: darkAccent,
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          canvasColor: Colors.grey[800],
         ),
-        elevation: 5,
-        isExpanded: true,
-        style: TextStyle(color: Colors.white, fontSize: 18.0),
-        items: <DropdownMenuItem<int>>[
-          DropdownMenuItem(
-            value: 3015,
-            child: Text(
-              '3015',
-              style: TextStyle(color: Colors.white, fontSize: 18.0),
+        child: DropdownButtonFormField<int>(
+          value: _teamNumber,
+          icon: Icon(Icons.arrow_drop_down),
+          iconSize: 24,
+          validator: (value) =>
+              value == null ? 'Team number is required' : null,
+          decoration: InputDecoration(
+            contentPadding: EdgeInsets.all(10.0),
+            hintText: 'Team Number',
+            hintStyle: TextStyle(
+              fontSize: 18.0,
+              color: Colors.grey[400],
             ),
-          ),
-          DropdownMenuItem(
-            value: 2716,
-            child: Text(
-              '2716',
-              style: TextStyle(color: Colors.white, fontSize: 18.0),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0),
+              borderSide: BorderSide(
+                width: 0,
+                style: BorderStyle.none,
+              ),
             ),
+            filled: true,
+            // fillColor: darkAccent,
           ),
-        ],
-        onChanged: (int newValue) {
-          setState(() {
-            _teamNumber = newValue;
-          });
-        },
+          elevation: 5,
+          isExpanded: true,
+          style: TextStyle(color: Colors.white, fontSize: 18.0),
+          items: <DropdownMenuItem<int>>[
+            DropdownMenuItem(
+              value: 3015,
+              child: Text(
+                '3015',
+                style: TextStyle(color: Colors.white, fontSize: 18.0),
+              ),
+            ),
+            DropdownMenuItem(
+              value: 2716,
+              child: Text(
+                '2716',
+                style: TextStyle(color: Colors.white, fontSize: 18.0),
+              ),
+            ),
+          ],
+          onChanged: (int newValue) {
+            setState(() {
+              _teamNumber = newValue;
+            });
+          },
+        ),
       ),
     );
   }

@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 class Database {
   final Firestore firestore = Firestore.instance;
   final CollectionReference users = Firestore.instance.collection('users');
+  final CollectionReference timeRequests =
+      Firestore.instance.collection('timeRequests');
 
   Future<void> addUser(FirebaseUser user, int teamNumber) async {
     DocumentReference userDoc = users.document(user.uid);
@@ -11,7 +13,8 @@ class Database {
       'name': user.displayName,
       'team': teamNumber,
       'in_timestamp': null,
-      'total_hours': 0
+      'total_hours': 0,
+      'is_admin': false
     });
   }
 
@@ -20,8 +23,14 @@ class Database {
     return userDocSnapshot.data['team'];
   }
 
+  Future<bool> isUserAdmin(FirebaseUser user) async {
+    DocumentSnapshot userDocSnapshot = await users.document(user.uid).get();
+    return userDocSnapshot.data['is_admin'];
+  }
+
   Future<void> clockInUser(FirebaseUser user) async {
     DocumentReference userDoc = users.document(user.uid);
+    await addHoursToUserDay(user, 0, Timestamp.now());
     return userDoc.setData({'in_timestamp': Timestamp.now()}, merge: true);
   }
 
@@ -66,6 +75,20 @@ class Database {
     DocumentReference userDoc = users.document(user.uid);
     CollectionReference timecardCollection = userDoc.collection('timecard');
     return timecardCollection.getDocuments();
+  }
+
+  Future<QuerySnapshot> getTimeRequests() async {
+    return timeRequests.getDocuments();
+  }
+
+  Future<void> addTimeRequest(
+      FirebaseUser user, String changeDate, double newHours) async {
+    await timeRequests.add({
+      'user': user.uid,
+      'name': user.displayName,
+      'changeDate': changeDate,
+      'newHours': newHours,
+    });
   }
 
   Future<double> getTotalHours(FirebaseUser user) async {

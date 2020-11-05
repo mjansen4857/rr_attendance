@@ -1,20 +1,20 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:rr_attendance/services/database.dart';
+import 'package:rr_attendance/widgets/time_card/time_card.dart';
 
-class TimeCard extends StatefulWidget {
+class TimeCardPage extends StatefulWidget {
   final FirebaseUser user;
   final Database db;
 
-  TimeCard({this.user, this.db});
+  TimeCardPage({this.user, this.db});
 
   @override
-  State<StatefulWidget> createState() => _TimeCardState();
+  State<StatefulWidget> createState() => _TimeCardPageState();
 }
 
-class _TimeCardState extends State<TimeCard> {
-  List<DocumentSnapshot> _timecardDocs = [];
+class _TimeCardPageState extends State<TimeCardPage> {
+  List<TimeCard> _timeCards = [];
   String _totalHours = '0';
   bool _isLoading = true;
 
@@ -23,8 +23,15 @@ class _TimeCardState extends State<TimeCard> {
     super.initState();
     widget.db.getTimecardDocs(widget.user).then((querySnapshot) {
       widget.db.getTotalHours(widget.user).then((value) {
+        List<TimeCard> cards = [];
+        for (var doc in querySnapshot.documents) {
+          cards.add(TimeCard(doc));
+        }
+        cards.sort((a, b) {
+          return a.cardDate.compareTo(b.cardDate);
+        });
         setState(() {
-          _timecardDocs = querySnapshot.documents;
+          _timeCards = cards;
           _totalHours = value.toStringAsFixed(1);
           _isLoading = false;
         });
@@ -44,52 +51,52 @@ class _TimeCardState extends State<TimeCard> {
     );
   }
 
-  Widget buildDataTable() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      child: DataTable(
-        sortColumnIndex: 0,
-        columns: <DataColumn>[
-          DataColumn(
-              label: Text(
-            'Date',
-            style: TextStyle(
-                color: Colors.grey[200],
-                fontSize: 26,
-                fontWeight: FontWeight.bold),
-          )),
-          DataColumn(
-              label: Text(
-                'Hours',
-                style: TextStyle(
-                    color: Colors.grey[200],
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold),
-              ),
-              numeric: true)
-        ],
-        rows: buildDataRows(),
-      ),
-    );
-  }
+  // Widget buildDataTable() {
+  //   return SingleChildScrollView(
+  //     scrollDirection: Axis.vertical,
+  //     child: DataTable(
+  //       sortColumnIndex: 0,
+  //       columns: <DataColumn>[
+  //         DataColumn(
+  //             label: Text(
+  //           'Date',
+  //           style: TextStyle(
+  //               color: Colors.grey[200],
+  //               fontSize: 26,
+  //               fontWeight: FontWeight.bold),
+  //         )),
+  //         DataColumn(
+  //             label: Text(
+  //               'Hours',
+  //               style: TextStyle(
+  //                   color: Colors.grey[200],
+  //                   fontSize: 26,
+  //                   fontWeight: FontWeight.bold),
+  //             ),
+  //             numeric: true)
+  //       ],
+  //       rows: buildDataRows(),
+  //     ),
+  //   );
+  // }
 
-  List<DataRow> buildDataRows() {
-    List<DataRow> dataRows = [];
-    _timecardDocs.forEach((element) {
-      double hours = element.data['hours'];
-      dataRows.add(DataRow(cells: <DataCell>[
-        DataCell(Text(
-          element.documentID,
-          style: TextStyle(color: Colors.grey[300], fontSize: 20),
-        )),
-        DataCell(Text(
-          hours.toStringAsFixed(1),
-          style: TextStyle(color: Colors.grey[300], fontSize: 20),
-        ))
-      ]));
-    });
-    return dataRows;
-  }
+  // List<DataRow> buildDataRows() {
+  //   List<DataRow> dataRows = [];
+  //   _timecardDocs.forEach((element) {
+  //     double hours = element.data['hours'];
+  //     dataRows.add(DataRow(cells: <DataCell>[
+  //       DataCell(Text(
+  //         element.documentID,
+  //         style: TextStyle(color: Colors.grey[300], fontSize: 20),
+  //       )),
+  //       DataCell(Text(
+  //         hours.toStringAsFixed(1),
+  //         style: TextStyle(color: Colors.grey[300], fontSize: 20),
+  //       ))
+  //     ]));
+  //   });
+  //   return dataRows;
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -108,9 +115,11 @@ class _TimeCardState extends State<TimeCard> {
                   ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(10),
-                child: buildDataTable(),
+              Expanded(
+                child: ListView(
+                  padding: EdgeInsets.all(5),
+                  children: _timeCards,
+                ),
               ),
             ],
           ),

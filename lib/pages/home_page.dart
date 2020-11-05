@@ -2,13 +2,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:rr_attendance/custom_icons.dart';
 import 'package:rr_attendance/pages/leaderboard_page.dart';
+import 'package:rr_attendance/pages/requests_page.dart';
 import 'package:rr_attendance/pages/settings_page.dart';
 import 'package:rr_attendance/pages/time_card_page.dart';
 import 'package:rr_attendance/pages/time_tracker_page.dart';
 import 'package:rr_attendance/services/authentication.dart';
 import 'package:rr_attendance/services/database.dart';
 
-enum PageState { TIME_TRACKER, TIME_CARD, LEADERBOARD }
+enum PageState { TIME_TRACKER, TIME_CARD, LEADERBOARD, REQUESTS }
 
 class HomePage extends StatefulWidget {
   final FirebaseUser user;
@@ -25,6 +26,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   PageState _pageState = PageState.TIME_TRACKER;
   String _teamNumber = "";
+  bool _isAdmin = false;
 
   void signOut() async {
     try {
@@ -38,9 +40,12 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    widget.db.getTeamNumber(widget.user).then((value) {
-      setState(() {
-        _teamNumber = value.toString();
+    widget.db.getTeamNumber(widget.user).then((team) {
+      widget.db.isUserAdmin(widget.user).then((isAdmin) {
+        setState(() {
+          _teamNumber = team.toString();
+          _isAdmin = isAdmin;
+        });
       });
     });
   }
@@ -50,7 +55,7 @@ class _HomePageState extends State<HomePage> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        // backgroundColor: darkBG,
+        // backgroundColor: CustomColors.background,
         appBar: buildAppBar(),
         drawer: buildDrawer(),
         body: buildPageContent(),
@@ -81,6 +86,11 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
         );
+      case PageState.REQUESTS:
+        return AppBar(
+          title: Text('Requests'),
+          backgroundColor: Colors.indigo,
+        );
       case PageState.TIME_TRACKER:
       default:
         return AppBar(
@@ -93,13 +103,17 @@ class _HomePageState extends State<HomePage> {
   Widget buildPageContent() {
     switch (_pageState) {
       case PageState.TIME_CARD:
-        return TimeCard(
+        return TimeCardPage(
           user: widget.user,
           db: widget.db,
         );
       case PageState.LEADERBOARD:
         return LeaderboardPage(
           user: widget.user,
+          db: widget.db,
+        );
+      case PageState.REQUESTS:
+        return RequestsPage(
           db: widget.db,
         );
       case PageState.TIME_TRACKER:
@@ -170,15 +184,24 @@ class _HomePageState extends State<HomePage> {
                     setState(() {
                       _pageState = PageState.LEADERBOARD;
                     });
-                    // Navigator.push(
-                    //     context,
-                    //     MaterialPageRoute(
-                    //         builder: (context) => LeaderboardPage(
-                    //               user: widget.user,
-                    //               db: widget.db,
-                    //             )));
                   },
-                )
+                ),
+                Visibility(
+                  child: ListTile(
+                    leading: Icon(
+                      Icons.add_alert,
+                      color: Colors.grey,
+                    ),
+                    title: Text('Requests'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      setState(() {
+                        _pageState = PageState.REQUESTS;
+                      });
+                    },
+                  ),
+                  visible: _isAdmin,
+                ),
               ],
             ),
           ),
