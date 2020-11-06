@@ -65,7 +65,7 @@ class _HomePageState extends State<HomePage> {
     switch (_pageState) {
       case PageState.TIME_CARD:
         return AppBar(
-          title: Text('Time Card'),
+          title: Text('Logged Hours'),
           backgroundColor: Colors.indigo,
         );
       case PageState.LEADERBOARD:
@@ -148,7 +148,7 @@ class _HomePageState extends State<HomePage> {
                     Icons.timer,
                     color: Colors.grey,
                   ),
-                  title: Text('Time tracker'),
+                  title: Text('Time Tracker'),
                   onTap: () {
                     Navigator.pop(context);
                     setState(() {
@@ -161,7 +161,7 @@ class _HomePageState extends State<HomePage> {
                     Icons.list,
                     color: Colors.grey,
                   ),
-                  title: Text('My time card'),
+                  title: Text('Logged Hours'),
                   onTap: () {
                     Navigator.pop(context);
                     setState(() {
