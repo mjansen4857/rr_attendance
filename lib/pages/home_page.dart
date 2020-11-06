@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:rr_attendance/custom_icons.dart';
 import 'package:rr_attendance/pages/leaderboard_page.dart';
 import 'package:rr_attendance/pages/requests_page.dart';
-import 'package:rr_attendance/pages/settings_page.dart';
 import 'package:rr_attendance/pages/time_card_page.dart';
 import 'package:rr_attendance/pages/time_tracker_page.dart';
 import 'package:rr_attendance/services/authentication.dart';
@@ -55,7 +54,6 @@ class _HomePageState extends State<HomePage> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        // backgroundColor: CustomColors.background,
         appBar: buildAppBar(),
         drawer: buildDrawer(),
         body: buildPageContent(),
@@ -143,7 +141,6 @@ class _HomePageState extends State<HomePage> {
                       _teamNumber,
                       style: TextStyle(color: Colors.white, fontSize: 24),
                     ),
-//                    backgroundImage: AssetImage('images/rr_logo.jpg'),
                   ),
                 ),
                 ListTile(
@@ -212,23 +209,23 @@ class _HomePageState extends State<HomePage> {
                 child: Column(
                   children: <Widget>[
                     Divider(),
-                    ListTile(
-                      leading: Icon(
-                        Icons.settings,
-                        color: Colors.grey,
-                      ),
-                      title: Text(
-                        'Settings',
-                        style: TextStyle(fontSize: 15),
-                      ),
-                      onTap: () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => SettingsPage()));
-                      },
-                    ),
+                    // ListTile(
+                    //   leading: Icon(
+                    //     Icons.settings,
+                    //     color: Colors.grey,
+                    //   ),
+                    //   title: Text(
+                    //     'Settings',
+                    //     style: TextStyle(fontSize: 15),
+                    //   ),
+                    //   onTap: () {
+                    //     Navigator.pop(context);
+                    //     Navigator.push(
+                    //         context,
+                    //         MaterialPageRoute(
+                    //             builder: (context) => SettingsPage()));
+                    //   },
+                    // ),
                     ListTile(
                       leading: Icon(
                         Icons.exit_to_app,

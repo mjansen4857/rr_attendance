@@ -25,7 +25,11 @@ class _TimeCardPageState extends State<TimeCardPage> {
       widget.db.getTotalHours(widget.user).then((value) {
         List<TimeCard> cards = [];
         for (var doc in querySnapshot.documents) {
-          cards.add(TimeCard(doc));
+          cards.add(TimeCard(
+            db: widget.db,
+            user: widget.user,
+            dateSnapshot: doc,
+          ));
         }
         cards.sort((a, b) {
           return a.cardDate.compareTo(b.cardDate);

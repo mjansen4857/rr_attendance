@@ -24,13 +24,25 @@ class _RequestsPageState extends State<RequestsPage> {
       List<RequestCard> cards = [];
 
       for (var doc in docs) {
-        cards.add(RequestCard(doc));
+        cards.add(RequestCard(
+          doc,
+          db: widget.db,
+          removeCardCallback: _removeCardCallback,
+        ));
       }
 
       setState(() {
         _isLoading = false;
         _requestCards = cards;
       });
+    });
+  }
+
+  void _removeCardCallback(RequestCard card) {
+    setState(() {
+      List<RequestCard> cards = List.from(_requestCards);
+      cards.remove(card);
+      _requestCards = cards;
     });
   }
 

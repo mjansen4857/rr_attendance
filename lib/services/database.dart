@@ -82,13 +82,33 @@ class Database {
   }
 
   Future<void> addTimeRequest(
-      FirebaseUser user, String changeDate, double newHours) async {
+      FirebaseUser user, DateTime changeDate, double newHours) async {
     await timeRequests.add({
       'user': user.uid,
       'name': user.displayName,
       'changeDate': changeDate,
       'newHours': newHours,
     });
+  }
+
+  Future<void> deleteTimeRequest(
+      String uid, DateTime date, String hours) async {
+    QuerySnapshot querySnapshot = await timeRequests
+        .where('user', isEqualTo: uid)
+        .where('changeDate', isEqualTo: Timestamp.fromDate(date))
+        .where('newHours', isEqualTo: double.parse(hours))
+        .getDocuments();
+    await timeRequests.document(querySnapshot.documents[0].documentID).delete();
+  }
+
+  Future<void> approveTimeRequest(
+      String uid, DateTime date, String hours) async {
+    DocumentReference userDoc = users.document(uid);
+    CollectionReference timecardCollection = userDoc.collection('timecard');
+    DocumentReference dateDoc =
+        timecardCollection.document('${date.year}-${date.month}-${date.day}');
+    dateDoc.setData({'hours': double.parse(hours)}, merge: true);
+    await deleteTimeRequest(uid, date, hours);
   }
 
   Future<double> getTotalHours(FirebaseUser user) async {
