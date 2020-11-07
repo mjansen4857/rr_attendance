@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rr_attendance/services/database.dart';
 import 'package:rr_attendance/widgets/time_card/time_card.dart';
@@ -55,53 +56,6 @@ class _TimeCardPageState extends State<TimeCardPage> {
     );
   }
 
-  // Widget buildDataTable() {
-  //   return SingleChildScrollView(
-  //     scrollDirection: Axis.vertical,
-  //     child: DataTable(
-  //       sortColumnIndex: 0,
-  //       columns: <DataColumn>[
-  //         DataColumn(
-  //             label: Text(
-  //           'Date',
-  //           style: TextStyle(
-  //               color: Colors.grey[200],
-  //               fontSize: 26,
-  //               fontWeight: FontWeight.bold),
-  //         )),
-  //         DataColumn(
-  //             label: Text(
-  //               'Hours',
-  //               style: TextStyle(
-  //                   color: Colors.grey[200],
-  //                   fontSize: 26,
-  //                   fontWeight: FontWeight.bold),
-  //             ),
-  //             numeric: true)
-  //       ],
-  //       rows: buildDataRows(),
-  //     ),
-  //   );
-  // }
-
-  // List<DataRow> buildDataRows() {
-  //   List<DataRow> dataRows = [];
-  //   _timecardDocs.forEach((element) {
-  //     double hours = element.data['hours'];
-  //     dataRows.add(DataRow(cells: <DataCell>[
-  //       DataCell(Text(
-  //         element.documentID,
-  //         style: TextStyle(color: Colors.grey[300], fontSize: 20),
-  //       )),
-  //       DataCell(Text(
-  //         hours.toStringAsFixed(1),
-  //         style: TextStyle(color: Colors.grey[300], fontSize: 20),
-  //       ))
-  //     ]));
-  //   });
-  //   return dataRows;
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -120,9 +74,11 @@ class _TimeCardPageState extends State<TimeCardPage> {
                 ),
               ),
               Expanded(
-                child: ListView(
-                  padding: EdgeInsets.all(5),
-                  children: _timeCards,
+                child: CupertinoScrollbar(
+                  child: ListView(
+                    padding: EdgeInsets.all(5),
+                    children: _timeCards,
+                  ),
                 ),
               ),
             ],

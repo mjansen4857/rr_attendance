@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rr_attendance/services/database.dart';
 import 'package:rr_attendance/widgets/request_card/request_card.dart';
@@ -63,9 +64,11 @@ class _RequestsPageState extends State<RequestsPage> {
     return Stack(
       children: <Widget>[
         Center(
-          child: ListView(
-            padding: EdgeInsets.all(5),
-            children: _requestCards,
+          child: CupertinoScrollbar(
+            child: ListView(
+              padding: EdgeInsets.all(5),
+              children: _requestCards,
+            ),
           ),
         ),
         showLoading(),

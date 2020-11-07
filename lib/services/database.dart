@@ -53,6 +53,17 @@ class Database {
     DocumentReference userDoc = users.document(user.uid);
     DocumentSnapshot userDocSnapshot = await userDoc.get();
     Timestamp inTime = userDocSnapshot.data['in_timestamp'];
+    if (inTime != null) {
+      if (inTime.toDate().day != DateTime.now().day ||
+          inTime.toDate().month != DateTime.now().month ||
+          inTime.toDate().year != DateTime.now().year) {
+        // auto clock out user at midnight
+        await userDoc.setData({
+          'in_timestamp': null,
+        }, merge: true);
+        return null;
+      }
+    }
     return inTime;
   }
 

@@ -7,8 +7,10 @@ class LoginSignupPage extends StatefulWidget {
   final Authentication auth;
   final Database db;
   final VoidCallback loginCallback;
+  final VoidCallback newUserCallback;
 
-  LoginSignupPage({this.auth, this.db, this.loginCallback});
+  LoginSignupPage(
+      {this.auth, this.db, this.loginCallback, this.newUserCallback});
 
   @override
   State<StatefulWidget> createState() => _LoginSignupPageState();
@@ -47,17 +49,24 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
         if (_isLoginForm) {
           user = await widget.auth.signIn(_email, _password);
           print('Signed in: ${user.uid}');
+          setState(() {
+            _isLoading = false;
+          });
+          if (user != null) {
+            // widget.loginCallback();
+            widget.newUserCallback();
+          }
         } else {
           user = await widget.auth.signUp(_email, _password, _name);
           user = await widget.auth.signIn(_email, _password);
           await widget.db.addUser(user, _teamNumber);
           print('Signed up user: ${user.uid}');
-        }
-        setState(() {
-          _isLoading = false;
-        });
-        if (user != null) {
-          widget.loginCallback();
+          setState(() {
+            _isLoading = false;
+          });
+          if (user != null) {
+            widget.newUserCallback();
+          }
         }
       } catch (e) {
         print('Error: $e');
