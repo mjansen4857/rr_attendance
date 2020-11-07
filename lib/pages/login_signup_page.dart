@@ -53,8 +53,7 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
             _isLoading = false;
           });
           if (user != null) {
-            // widget.loginCallback();
-            widget.newUserCallback();
+            widget.loginCallback();
           }
         } else {
           user = await widget.auth.signUp(_email, _password, _name);

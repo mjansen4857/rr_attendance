@@ -28,7 +28,16 @@ class OnboardingPage extends StatelessWidget {
               Text(' button to clock in and out'),
             ],
           ),
-          image: Center(child: Icon(Icons.android)),
+          image: Center(
+            child: Material(
+              child: Image.asset(
+                'images/time_tracker.png',
+                height: 330,
+              ),
+              elevation: 8,
+            ),
+          ),
+          decoration: PageDecoration(imageFlex: 2, bodyFlex: 1),
         ),
         PageViewModel(
           title: 'Logged Hours',
@@ -39,7 +48,16 @@ class OnboardingPage extends StatelessWidget {
               Text('the "Logged Hours" page'),
             ],
           ),
-          image: Center(child: Icon(Icons.android)),
+          image: Center(
+            child: Material(
+              child: Image.asset(
+                'images/logged_hours.png',
+                height: 330,
+              ),
+              elevation: 8,
+            ),
+          ),
+          decoration: PageDecoration(imageFlex: 2, bodyFlex: 1),
         ),
         PageViewModel(
           title: 'Time Change Requests',
@@ -53,15 +71,25 @@ class OnboardingPage extends StatelessWidget {
                   Text(' to request a time change'),
                 ],
               ),
-              SizedBox(
-                height: 25,
-              ),
+            ],
+          ),
+          footer: Column(
+            children: <Widget>[
               Text('You have to clock in at least once on the day'),
               Text('you would like to submit a time request'),
               Text('or the option will not be available')
             ],
           ),
-          image: Center(child: Icon(Icons.android)),
+          image: Center(
+            child: Material(
+              child: Image.asset(
+                'images/time_request.png',
+                height: 330,
+              ),
+              elevation: 8,
+            ),
+          ),
+          decoration: PageDecoration(imageFlex: 2, bodyFlex: 1),
         ),
         PageViewModel(
           title: 'Leaderboard',
@@ -72,7 +100,16 @@ class OnboardingPage extends StatelessWidget {
               Text('your team on the "Leaderboard" page'),
             ],
           ),
-          image: Center(child: Icon(Icons.android)),
+          image: Center(
+            child: Material(
+              child: Image.asset(
+                'images/leaderboard.png',
+                height: 330,
+              ),
+              elevation: 8,
+            ),
+          ),
+          decoration: PageDecoration(imageFlex: 2, bodyFlex: 1),
         ),
       ],
       dotsDecorator: DotsDecorator(
