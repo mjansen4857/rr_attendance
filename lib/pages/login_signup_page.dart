@@ -44,7 +44,7 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
         _isLoading = true;
       });
 
-      FirebaseUser user;
+      User user;
       try {
         if (_isLoginForm) {
           user = await widget.auth.signIn(_email, _password);

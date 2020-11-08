@@ -12,10 +12,10 @@ class RequestCard extends StatelessWidget {
 
   RequestCard(DocumentSnapshot requestSnapshot,
       {this.db, this.removeCardCallback})
-      : date = requestSnapshot.data['changeDate'].toDate(),
-        hours = requestSnapshot.data['newHours'].toString(),
-        name = requestSnapshot.data['name'].toString(),
-        uid = requestSnapshot.data['user'];
+      : date = requestSnapshot.data()['changeDate'].toDate(),
+        hours = requestSnapshot.data()['newHours'].toString(),
+        name = requestSnapshot.data()['name'].toString(),
+        uid = requestSnapshot.data()['user'];
 
   @override
   Widget build(BuildContext context) {

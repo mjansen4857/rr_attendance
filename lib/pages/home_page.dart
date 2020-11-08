@@ -11,7 +11,7 @@ import 'package:rr_attendance/services/database.dart';
 enum PageState { TIME_TRACKER, TIME_CARD, LEADERBOARD, REQUESTS }
 
 class HomePage extends StatefulWidget {
-  final FirebaseUser user;
+  final User user;
   final Authentication auth;
   final Database db;
   final VoidCallback logoutCallback;

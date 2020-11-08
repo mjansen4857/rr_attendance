@@ -5,7 +5,7 @@ import 'package:rr_attendance/services/database.dart';
 import 'package:rr_attendance/widgets/time_card/time_card.dart';
 
 class TimeCardPage extends StatefulWidget {
-  final FirebaseUser user;
+  final User user;
   final Database db;
 
   TimeCardPage({this.user, this.db});

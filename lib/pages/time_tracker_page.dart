@@ -7,7 +7,7 @@ import 'package:rr_attendance/widgets/wave/config.dart';
 import 'package:rr_attendance/widgets/wave/wave.dart';
 
 class TimeTracker extends StatefulWidget {
-  final FirebaseUser user;
+  final User user;
   final Database db;
 
   TimeTracker({this.user, this.db});

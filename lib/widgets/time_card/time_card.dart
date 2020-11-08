@@ -6,12 +6,12 @@ import 'package:rr_attendance/services/database.dart';
 // ignore: must_be_immutable
 class TimeCard extends StatefulWidget {
   final Database db;
-  final FirebaseUser user;
+  final User user;
   final DocumentSnapshot dateSnapshot;
   DateTime cardDate;
 
   TimeCard({this.db, this.user, this.dateSnapshot}) {
-    List<String> dateValues = dateSnapshot.documentID.split('-');
+    List<String> dateValues = dateSnapshot.id.split('-');
     this.cardDate = DateTime(int.parse(dateValues[0]), int.parse(dateValues[1]),
         int.parse(dateValues[2]));
   }
@@ -50,7 +50,7 @@ class _TimeCardState extends State<TimeCard> {
           ListTile(
             title: Text(_dateText),
             subtitle: Text(
-                widget.dateSnapshot.data['hours'].toStringAsFixed(1) +
+                widget.dateSnapshot.data()['hours'].toStringAsFixed(1) +
                     ' hours'),
             trailing: IconButton(
               icon: Icon(

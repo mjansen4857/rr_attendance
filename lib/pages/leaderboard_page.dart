@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:rr_attendance/services/database.dart';
 
 class LeaderboardPage extends StatefulWidget {
-  final FirebaseUser user;
+  final User user;
   final Database db;
 
   LeaderboardPage({this.user, this.db});
@@ -26,22 +26,22 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
     widget.db.getAllUserDocsFromTeam(3015).then((value3015) {
       widget.db.getAllUserDocsFromTeam(2716).then((value2716) {
         setState(() {
-          _3015Docs = value3015.documents;
+          _3015Docs = value3015.docs;
           _3015Docs.forEach((element) {
-            _3015Total += element.data['total_hours'];
+            _3015Total += element.data()['total_hours'];
           });
           _3015Docs.sort((a, b) {
-            double aHours = a.data['total_hours'].toDouble();
-            double bHours = b.data['total_hours'].toDouble();
+            double aHours = a.data()['total_hours'].toDouble();
+            double bHours = b.data()['total_hours'].toDouble();
             return bHours.compareTo(aHours);
           });
-          _2716Docs = value2716.documents;
+          _2716Docs = value2716.docs;
           _2716Docs.forEach((element) {
-            _2716Total += element.data['total_hours'];
+            _2716Total += element.data()['total_hours'];
           });
           _2716Docs.sort((a, b) {
-            double aHours = a.data['total_hours'].toDouble();
-            double bHours = b.data['total_hours'].toDouble();
+            double aHours = a.data()['total_hours'].toDouble();
+            double bHours = b.data()['total_hours'].toDouble();
             return bHours.compareTo(aHours);
           });
           _isLoading = false;
@@ -57,39 +57,6 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
         TabBarView(children: <Widget>[build3015Tab(), build2716Tab()]),
         showLoading(),
       ],
-    );
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          // title: Text('Leaderboard'),
-          // backgroundColor: Colors.indigo,
-          // leading: IconButton(
-          //   icon: Icon(Icons.arrow_back),
-          //   onPressed: () {
-          //     Navigator.pop(context);
-          //   },
-          // ),
-          bottom: TabBar(
-            indicatorColor: Colors.white,
-            tabs: <Widget>[
-              Tab(
-                text: '3015',
-              ),
-              Tab(
-                text: '2716',
-              )
-            ],
-          ),
-        ),
-        // backgroundColor: darkBG,
-        body: Stack(
-          children: <Widget>[
-            TabBarView(children: <Widget>[build3015Tab(), build2716Tab()]),
-            showLoading(),
-          ],
-        ),
-      ),
     );
   }
 
@@ -173,8 +140,8 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
   List<DataRow> build3015DataRows() {
     List<DataRow> dataRows = [];
     _3015Docs.forEach((element) {
-      double hours = element.data['total_hours'].toDouble();
-      String name = element.data['name'];
+      double hours = element.data()['total_hours'].toDouble();
+      String name = element.data()['name'];
       dataRows.add(DataRow(cells: <DataCell>[
         DataCell(Text(
           name,
@@ -221,8 +188,8 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
   List<DataRow> build2716DataRows() {
     List<DataRow> dataRows = [];
     _2716Docs.forEach((element) {
-      double hours = element.data['total_hours'].toDouble();
-      String name = element.data['name'];
+      double hours = element.data()['total_hours'].toDouble();
+      String name = element.data()['name'];
       dataRows.add(DataRow(cells: <DataCell>[
         DataCell(Text(
           name,

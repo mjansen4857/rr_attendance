@@ -21,7 +21,7 @@ class _RequestsPageState extends State<RequestsPage> {
   void initState() {
     super.initState();
     widget.db.getTimeRequests().then((querySnapshot) {
-      List<DocumentSnapshot> docs = querySnapshot.documents;
+      List<DocumentSnapshot> docs = querySnapshot.docs;
       List<RequestCard> cards = [];
 
       for (var doc in docs) {
