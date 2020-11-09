@@ -120,8 +120,11 @@ class Database {
   }
 
   Future<QuerySnapshot> getAllUserDocsFromTeam(int team) async {
-    QuerySnapshot querySnapshot =
-        await users.where('team', isEqualTo: team).get();
+    QuerySnapshot querySnapshot = await users
+        .where('team', isEqualTo: team)
+        .where('total_hours', isGreaterThanOrEqualTo: 0.1)
+        .orderBy('total_hours', descending: true)
+        .get();
     return querySnapshot;
   }
 }

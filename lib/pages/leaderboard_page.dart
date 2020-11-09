@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rr_attendance/services/database.dart';
 
@@ -30,19 +31,9 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
           _3015Docs.forEach((element) {
             _3015Total += element.data()['total_hours'];
           });
-          _3015Docs.sort((a, b) {
-            double aHours = a.data()['total_hours'].toDouble();
-            double bHours = b.data()['total_hours'].toDouble();
-            return bHours.compareTo(aHours);
-          });
           _2716Docs = value2716.docs;
           _2716Docs.forEach((element) {
             _2716Total += element.data()['total_hours'];
-          });
-          _2716Docs.sort((a, b) {
-            double aHours = a.data()['total_hours'].toDouble();
-            double bHours = b.data()['total_hours'].toDouble();
-            return bHours.compareTo(aHours);
           });
           _isLoading = false;
         });
@@ -65,19 +56,20 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Center(
+          Material(
+            elevation: 5,
+            color: Color(0xff343434),
             child: Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: Text(
-                'Total Hours: ${_3015Total.toStringAsFixed(1)}',
-                style: TextStyle(color: Colors.white, fontSize: 36),
+              padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+              child: Center(
+                child: Text(
+                  'Team Total: ${_3015Total.toStringAsFixed(1)} hours',
+                  style: TextStyle(color: Colors.white, fontSize: 28),
+                ),
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: build3015Table(),
-          )
+          build3015List(),
         ],
       ),
     );
@@ -88,120 +80,91 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Center(
+          Material(
+            elevation: 5,
+            color: Color(0xff343434),
             child: Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: Text(
-                'Total Hours: ${_2716Total.toStringAsFixed(1)}',
-                style: TextStyle(color: Colors.white, fontSize: 36),
+              padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+              child: Center(
+                child: Text(
+                  'Team Total: ${_2716Total.toStringAsFixed(1)} hours',
+                  style: TextStyle(color: Colors.white, fontSize: 28),
+                ),
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: build2716Table(),
-          )
+          build2716List(),
         ],
       ),
     );
   }
 
-  Widget build3015Table() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      child: DataTable(
-        sortColumnIndex: 1,
-        sortAscending: true,
-        columns: <DataColumn>[
-          DataColumn(
-              label: Text(
-            'Name',
+  Widget build3015List() {
+    return Expanded(
+      child: CupertinoScrollbar(
+        child: ListView(
+          padding: EdgeInsets.fromLTRB(3, 5, 3, 3),
+          children: build3015Entries(),
+        ),
+      ),
+    );
+  }
+
+  Widget build2716List() {
+    return Expanded(
+      child: CupertinoScrollbar(
+        child: ListView(
+          padding: EdgeInsets.all(3),
+          children: build2716Entries(),
+        ),
+      ),
+    );
+  }
+
+  List<Widget> build3015Entries() {
+    List<Widget> entries = [];
+    for (int i = 0; i < _3015Docs.length; i++) {
+      entries.add(Card(
+        child: ListTile(
+          leading: Text(
+            (i + 1).toString() + '.',
+            style: TextStyle(fontSize: 18),
+          ),
+          title: Text(
+            _3015Docs[i].data()['name'],
             style: TextStyle(
-                color: Colors.grey[200],
-                fontSize: 26,
-                fontWeight: FontWeight.bold),
-          )),
-          DataColumn(
-            label: Text(
-              'Hours',
-              style: TextStyle(
-                  color: Colors.grey[200],
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold),
+              fontSize: 18,
             ),
-            numeric: true,
-          )
-        ],
-        rows: build3015DataRows(),
-      ),
-    );
+          ),
+          trailing: Text(
+              _3015Docs[i].data()['total_hours'].toStringAsFixed(1) + ' hours'),
+        ),
+      ));
+    }
+    return entries;
   }
 
-  List<DataRow> build3015DataRows() {
-    List<DataRow> dataRows = [];
-    _3015Docs.forEach((element) {
-      double hours = element.data()['total_hours'].toDouble();
-      String name = element.data()['name'];
-      dataRows.add(DataRow(cells: <DataCell>[
-        DataCell(Text(
-          name,
-          style: TextStyle(color: Colors.grey[300], fontSize: 20),
-        )),
-        DataCell(Text(
-          hours.toStringAsFixed(1),
-          style: TextStyle(color: Colors.grey[300], fontSize: 20),
-        ))
-      ]));
-    });
-    return dataRows;
-  }
-
-  Widget build2716Table() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      child: DataTable(
-        sortColumnIndex: 1,
-        columns: <DataColumn>[
-          DataColumn(
-              label: Text(
-            'Name',
+  List<Widget> build2716Entries() {
+    List<Widget> entries = [];
+    for (int i = 0; i < _2716Docs.length; i++) {
+      entries.add(Card(
+        child: ListTile(
+          leading: Text(
+            (i + 1).toString() + '.',
+            style: TextStyle(fontSize: 18),
+          ),
+          title: Text(
+            _2716Docs[i].data()['name'],
             style: TextStyle(
-                color: Colors.grey[200],
-                fontSize: 26,
-                fontWeight: FontWeight.bold),
-          )),
-          DataColumn(
-              label: Text(
-                'Hours',
-                style: TextStyle(
-                    color: Colors.grey[200],
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold),
-              ),
-              numeric: true)
-        ],
-        rows: build2716DataRows(),
-      ),
-    );
-  }
-
-  List<DataRow> build2716DataRows() {
-    List<DataRow> dataRows = [];
-    _2716Docs.forEach((element) {
-      double hours = element.data()['total_hours'].toDouble();
-      String name = element.data()['name'];
-      dataRows.add(DataRow(cells: <DataCell>[
-        DataCell(Text(
-          name,
-          style: TextStyle(color: Colors.grey[300], fontSize: 20),
-        )),
-        DataCell(Text(
-          hours.toStringAsFixed(1),
-          style: TextStyle(color: Colors.grey[300], fontSize: 20),
-        ))
-      ]));
-    });
-    return dataRows;
+              fontSize: 18,
+            ),
+          ),
+          trailing: Text(
+              _2716Docs[i].data()['total_hours'].toStringAsFixed(1) + ' hours'),
+        ),
+      ));
+    }
+    return entries;
   }
 
   Widget showLoading() {
