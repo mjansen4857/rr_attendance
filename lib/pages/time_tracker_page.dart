@@ -167,12 +167,17 @@ class _TimeTrackerState extends State<TimeTracker>
   }
 
   Widget buildTimeTicker() {
-    TextStyle digitStyle = TextStyle(fontSize: 86, color: Colors.grey[100]);
+    TextStyle digitStyle = TextStyle(
+      fontSize: 86,
+      color: Colors.grey[100],
+      fontFamily: 'Roboto',
+      fontWeight: FontWeight.w400,
+    );
     Text separator = Text(':', style: digitStyle);
     return Card(
       child: Center(
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
@@ -216,7 +221,7 @@ class _TimeTrackerState extends State<TimeTracker>
       duration: Duration(milliseconds: 500),
       curve: Curves.easeInOut,
       child: Container(
-        height: 150,
+        height: 200,
         width: double.infinity,
         child: WaveWidget(
           backgroundColor: Colors.transparent,

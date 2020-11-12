@@ -33,7 +33,7 @@ class _TimeCardPageState extends State<TimeCardPage> {
           ));
         }
         cards.sort((a, b) {
-          return a.cardDate.compareTo(b.cardDate);
+          return b.cardDate.compareTo(a.cardDate);
         });
         setState(() {
           _timeCards = cards;
