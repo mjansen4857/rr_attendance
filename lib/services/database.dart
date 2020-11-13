@@ -7,6 +7,8 @@ class Database {
       FirebaseFirestore.instance.collection('users');
   final CollectionReference timeRequests =
       FirebaseFirestore.instance.collection('timeRequests');
+  final CollectionReference settings =
+      FirebaseFirestore.instance.collection('settings');
 
   Future<void> addUser(User user, int teamNumber) async {
     DocumentReference userDoc = users.doc(user.uid);
@@ -17,6 +19,11 @@ class Database {
       'total_hours': 0,
       'is_admin': false
     });
+  }
+
+  Future<bool> validatePermission(String permissionCode) async {
+    DocumentSnapshot settingsDoc = await settings.doc('settings').get();
+    return settingsDoc.data()['permission_code'] == permissionCode;
   }
 
   Future<int> getTeamNumber(User user) async {

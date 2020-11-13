@@ -23,6 +23,7 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
   String _password;
   String _name;
   int _teamNumber;
+  String _permissionCode;
   String _errorMessage;
 
   bool _isLoading;
@@ -56,15 +57,23 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
             widget.loginCallback();
           }
         } else {
-          user = await widget.auth.signUp(_email, _password, _name);
-          user = await widget.auth.signIn(_email, _password);
-          await widget.db.addUser(user, _teamNumber);
-          print('Signed up user: ${user.uid}');
-          setState(() {
-            _isLoading = false;
-          });
-          if (user != null) {
-            widget.newUserCallback();
+          bool permission = await widget.db.validatePermission(_permissionCode);
+          if (!permission) {
+            setState(() {
+              _isLoading = false;
+              _errorMessage = 'Invalid permission code';
+            });
+          } else {
+            user = await widget.auth.signUp(_email, _password, _name);
+            user = await widget.auth.signIn(_email, _password);
+            await widget.db.addUser(user, _teamNumber);
+            print('Signed up user: ${user.uid}');
+            setState(() {
+              _isLoading = false;
+            });
+            if (user != null) {
+              widget.newUserCallback();
+            }
           }
         }
       } catch (e) {
@@ -144,6 +153,7 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
             showPasswordInput(),
             showNameInput(),
             showTeamInput(),
+            showPermissionInput(),
             showPrimaryButton(),
             showSecondaryButton(),
             showErrorMessage(),
@@ -168,7 +178,7 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
   Widget showLogo() {
     double r = 60.0;
     return Padding(
-      padding: EdgeInsets.fromLTRB(0.0, _isLoginForm ? 70.0 : 25.0, 0.0, 0.0),
+      padding: EdgeInsets.fromLTRB(0.0, _isLoginForm ? 70.0 : 15.0, 0.0, 0.0),
       child: Center(
         child: SizedBox(
           width: r * 2,
@@ -185,7 +195,7 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
 
   Widget showEmailInput() {
     return Padding(
-      padding: EdgeInsets.fromLTRB(0.0, _isLoginForm ? 70.0 : 50.0, 0.0, 0.0),
+      padding: EdgeInsets.fromLTRB(0.0, _isLoginForm ? 70.0 : 30.0, 0.0, 0.0),
       child: TextFormField(
         maxLines: 1,
         keyboardType: TextInputType.emailAddress,
@@ -339,6 +349,38 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
     );
   }
 
+  Widget showPermissionInput() {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(0.0, 15.0, 0.0, 0.0),
+      child: TextFormField(
+        maxLines: 1,
+        autofocus: false,
+        cursorColor: Colors.white,
+        decoration: InputDecoration(
+          contentPadding: EdgeInsets.all(10.0),
+          hintText: 'Permission Code',
+          hintStyle: TextStyle(
+            fontSize: 18.0,
+            color: Colors.grey[400],
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.0),
+            borderSide: BorderSide(
+              width: 0,
+              style: BorderStyle.none,
+            ),
+          ),
+          filled: true,
+          // fillColor: darkAccent,
+        ),
+        validator: (value) =>
+            value.isEmpty ? 'Permission code is required' : null,
+        onSaved: (value) => _permissionCode = value.trim(),
+        style: TextStyle(color: Colors.white, fontSize: 18.0),
+      ),
+    );
+  }
+
   Widget showPrimaryButton() {
     return Padding(
       padding: EdgeInsets.fromLTRB(0.0, 45.0, 0.0, 0.0),
@@ -376,7 +418,7 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
   Widget showErrorMessage() {
     if (_errorMessage.length > 0 && _errorMessage != null) {
       return Padding(
-        padding: const EdgeInsets.fromLTRB(0, 20.0, 0, 0),
+        padding: const EdgeInsets.fromLTRB(0, 0.0, 0, 0),
         child: Text(
           _errorMessage,
           textAlign: TextAlign.center,
