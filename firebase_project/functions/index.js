@@ -16,7 +16,7 @@ exports.clockOutAll = functions.pubsub.schedule('0 0 * * *')
             snap.forEach((doc) => {
                 var name = doc.get('name');
                 console.log('Forcibly clocking out ' + name);
-                batch.update(doc, 'in_timestamp', null);
+                batch.update(doc.ref, 'in_timestamp', null);
             });
             batch.commit();
         });
