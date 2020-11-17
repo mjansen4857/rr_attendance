@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:rr_attendance/pages/home_page.dart';
-import 'package:rr_attendance/pages/login_signup_page.dart';
+import 'package:rr_attendance/pages/login_page.dart';
 import 'package:rr_attendance/pages/onboarding_page.dart';
 import 'package:rr_attendance/services/authentication.dart';
 import 'package:rr_attendance/services/database.dart';
@@ -75,7 +75,7 @@ class _RootPageState extends State<RootPage> {
       case AuthStatus.NOT_DETERMINED:
         return buildLoadingScreen();
       case AuthStatus.NOT_LOGGED_IN:
-        return LoginSignupPage(
+        return LoginPage(
           auth: widget.auth,
           db: widget.db,
           loginCallback: loginCallback,

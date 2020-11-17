@@ -10,15 +10,20 @@ class Database {
   final CollectionReference settings =
       FirebaseFirestore.instance.collection('settings');
 
-  Future<void> addUser(User user, int teamNumber) async {
+  Future<bool> addUserIfNotExists(User user, int teamNumber) async {
     DocumentReference userDoc = users.doc(user.uid);
-    return userDoc.set({
-      'name': user.displayName,
-      'team': teamNumber,
-      'in_timestamp': null,
-      'total_hours': 0,
-      'is_admin': false
-    });
+    DocumentSnapshot userSnap = await userDoc.get();
+    if (!userSnap.exists) {
+      userDoc.set({
+        'name': user.displayName,
+        'team': teamNumber,
+        'in_timestamp': null,
+        'total_hours': 0,
+        'is_admin': false
+      });
+      return true;
+    }
+    return false;
   }
 
   Future<bool> validatePermission(String permissionCode) async {
