@@ -42,6 +42,9 @@ class Authentication {
       nonce: nonce,
     );
 
+    final givenName = appleCredential.givenName;
+    final familyName = appleCredential.familyName;
+
     final oauthCredential = OAuthProvider('apple.com').credential(
       idToken: appleCredential.identityToken,
       rawNonce: rawNonce,
@@ -50,6 +53,11 @@ class Authentication {
     UserCredential authResult =
         await _firebaseAuth.signInWithCredential(oauthCredential);
     User user = authResult.user;
+
+    if(givenName != null && familyName != null){
+      await user.updateProfile(displayName: givenName + ' ' + familyName);
+    }
+
     analytics.logLogin(loginMethod: 'Apple ID');
     return user;
   }

@@ -62,6 +62,7 @@ flutter:
     - images/leaderboard.png
     - images/google_logo.png
     - images/apple_logo.png
+    - images/profile.png
 
   fonts:
       - family:  CustomIcons

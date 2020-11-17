@@ -136,7 +136,9 @@ class _HomePageState extends State<HomePage> {
                   accountEmail: Text(widget.user.email),
                   accountName: Text(widget.user.displayName),
                   currentAccountPicture: CircleAvatar(
-                    backgroundImage: NetworkImage(widget.user.photoURL),
+                    backgroundColor: Colors.grey[850],
+                    backgroundImage: (widget.user.photoURL != null) ?
+                    NetworkImage(widget.user.photoURL) : AssetImage('images/profile.png'),
                   ),
                 ),
                 ListTile(
