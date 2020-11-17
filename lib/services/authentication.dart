@@ -59,7 +59,7 @@ class Authentication {
     }
 
     analytics.logLogin(loginMethod: 'Apple ID');
-    return user;
+    return getCurrentUser();
   }
 
   String generateNonce([int length = 32]) {
