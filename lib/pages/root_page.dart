@@ -5,14 +5,16 @@ import 'package:rr_attendance/pages/login_page.dart';
 import 'package:rr_attendance/pages/onboarding_page.dart';
 import 'package:rr_attendance/services/authentication.dart';
 import 'package:rr_attendance/services/database.dart';
+import 'package:rr_attendance/services/notifications.dart';
 
 enum AuthStatus { NOT_DETERMINED, NOT_LOGGED_IN, LOGGED_IN, NEW_USER }
 
 class RootPage extends StatefulWidget {
   final Authentication auth;
   final Database db;
+  final Notifications notifications;
 
-  RootPage({this.auth, this.db});
+  RootPage({this.auth, this.db, this.notifications});
 
   @override
   State<StatefulWidget> createState() => _RootPageState();
@@ -93,7 +95,8 @@ class _RootPageState extends State<RootPage> {
               user: _user,
               auth: widget.auth,
               db: widget.db,
-              logoutCallback: logoutCallback);
+              logoutCallback: logoutCallback,
+              notifications: widget.notifications);
         return buildLoadingScreen();
       default:
         return buildLoadingScreen();

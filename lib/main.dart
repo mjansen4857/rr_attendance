@@ -4,21 +4,27 @@ import 'package:flutter/material.dart';
 import 'package:rr_attendance/pages/root_page.dart';
 import 'package:rr_attendance/services/authentication.dart';
 import 'package:rr_attendance/services/database.dart';
+import 'package:rr_attendance/services/notifications.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   FirebaseAnalytics analytics = FirebaseAnalytics();
   await analytics.logAppOpen();
+  Notifications notifications = Notifications();
+  await notifications.initNotifications();
+  notifications.requestIOSPermissions();
   runApp(AttendanceApp(
     analytics: analytics,
+    notifications: notifications,
   ));
 }
 
 class AttendanceApp extends StatelessWidget {
   final FirebaseAnalytics analytics;
+  final Notifications notifications;
 
-  AttendanceApp({this.analytics});
+  AttendanceApp({this.analytics, this.notifications});
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +41,7 @@ class AttendanceApp extends StatelessWidget {
       home: RootPage(
         auth: Authentication(analytics: analytics),
         db: Database(),
+        notifications: Notifications(),
       ),
     );
   }

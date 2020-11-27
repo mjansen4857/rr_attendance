@@ -7,6 +7,7 @@ import 'package:rr_attendance/pages/time_card_page.dart';
 import 'package:rr_attendance/pages/time_tracker_page.dart';
 import 'package:rr_attendance/services/authentication.dart';
 import 'package:rr_attendance/services/database.dart';
+import 'package:rr_attendance/services/notifications.dart';
 
 enum PageState { TIME_TRACKER, TIME_CARD, LEADERBOARD, REQUESTS }
 
@@ -15,8 +16,10 @@ class HomePage extends StatefulWidget {
   final Authentication auth;
   final Database db;
   final VoidCallback logoutCallback;
+  final Notifications notifications;
 
-  HomePage({this.user, this.auth, this.db, this.logoutCallback});
+  HomePage(
+      {this.user, this.auth, this.db, this.logoutCallback, this.notifications});
 
   @override
   State<StatefulWidget> createState() => _HomePageState();
@@ -24,7 +27,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   PageState _pageState = PageState.TIME_TRACKER;
-  String _teamNumber = "";
   bool _isAdmin = false;
 
   void signOut() async {
@@ -39,12 +41,9 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    widget.db.getTeamNumber(widget.user).then((team) {
-      widget.db.isUserAdmin(widget.user).then((isAdmin) {
-        setState(() {
-          _teamNumber = team.toString();
-          _isAdmin = isAdmin;
-        });
+    widget.db.isUserAdmin(widget.user).then((isAdmin) {
+      setState(() {
+        _isAdmin = isAdmin;
       });
     });
   }
@@ -119,6 +118,7 @@ class _HomePageState extends State<HomePage> {
         return TimeTracker(
           user: widget.user,
           db: widget.db,
+          notifications: widget.notifications,
         );
     }
   }
@@ -137,8 +137,9 @@ class _HomePageState extends State<HomePage> {
                   accountName: Text(widget.user.displayName),
                   currentAccountPicture: CircleAvatar(
                     backgroundColor: Colors.grey[850],
-                    backgroundImage: (widget.user.photoURL != null) ?
-                    NetworkImage(widget.user.photoURL) : AssetImage('images/profile.png'),
+                    backgroundImage: (widget.user.photoURL != null)
+                        ? NetworkImage(widget.user.photoURL)
+                        : AssetImage('images/profile.png'),
                   ),
                 ),
                 ListTile(

@@ -3,14 +3,16 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:rr_attendance/services/database.dart';
+import 'package:rr_attendance/services/notifications.dart';
 import 'package:rr_attendance/widgets/wave/config.dart';
 import 'package:rr_attendance/widgets/wave/wave.dart';
 
 class TimeTracker extends StatefulWidget {
   final User user;
   final Database db;
+  final Notifications notifications;
 
-  TimeTracker({this.user, this.db});
+  TimeTracker({this.user, this.db, this.notifications});
 
   @override
   State<StatefulWidget> createState() => _TimeTrackerState();
@@ -153,7 +155,18 @@ class _TimeTrackerState extends State<TimeTracker>
                   children: <Widget>[
                     Padding(
                       padding: const EdgeInsets.all(32),
-                      child: buildClockButton(),
+                      child: Row(
+                        children: [
+                          Spacer(
+                            flex: 11,
+                          ),
+                          buildClockButton(),
+                          buildReminderButton(),
+                          Spacer(
+                            flex: 4,
+                          ),
+                        ],
+                      ),
                     )
                   ],
                 ),
@@ -208,7 +221,26 @@ class _TimeTrackerState extends State<TimeTracker>
         shape: CircleBorder(),
         child: Icon(
           _isClockedIn ? Icons.timer_off : Icons.timer,
-          size: 48,
+          size: 64,
+          color: Colors.grey[100],
+        ),
+      ),
+    );
+  }
+
+  Widget buildReminderButton() {
+    return AnimatedOpacity(
+      opacity: _isClockedIn ? 1.0 : 0.0,
+      duration: Duration(milliseconds: 250),
+      child: RawMaterialButton(
+        onPressed: () {},
+        elevation: 3,
+        fillColor: Colors.amber,
+        padding: EdgeInsets.all(12),
+        shape: CircleBorder(),
+        child: Icon(
+          Icons.add_alert,
+          size: 32,
           color: Colors.grey[100],
         ),
       ),
