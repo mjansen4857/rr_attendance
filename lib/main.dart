@@ -5,6 +5,7 @@ import 'package:rr_attendance/pages/root_page.dart';
 import 'package:rr_attendance/services/authentication.dart';
 import 'package:rr_attendance/services/database.dart';
 import 'package:rr_attendance/services/notifications.dart';
+import 'package:timezone/data/latest.dart' as tz;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,6 +15,7 @@ void main() async {
   Notifications notifications = Notifications();
   await notifications.initNotifications();
   notifications.requestIOSPermissions();
+  tz.initializeTimeZones();
   runApp(AttendanceApp(
     analytics: analytics,
     notifications: notifications,
@@ -33,10 +35,9 @@ class AttendanceApp extends StatelessWidget {
       title: 'Attendance',
 //      theme: ThemeData.dark(),
       theme: ThemeData(
-        primarySwatch: Colors.indigo,
+        primarySwatch: Colors.grey,
         brightness: Brightness.dark,
         accentColor: Colors.indigoAccent,
-        // canvasColor: Colors.grey[800],
       ),
       home: RootPage(
         auth: Authentication(analytics: analytics),

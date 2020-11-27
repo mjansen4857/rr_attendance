@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:rxdart/subjects.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 class Notifications {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -51,11 +53,14 @@ class Notifications {
         AndroidNotificationDetails(id, 'Reminder notifications', 'Remember');
     var iOSDetails = IOSNotificationDetails();
     var details = NotificationDetails(android: androidDetails, iOS: iOSDetails);
+    final timezoneName = await FlutterNativeTimezone.getLocalTimezone();
+    final location = tz.getLocation(timezoneName);
+    final tzDate = tz.TZDateTime.from(scheduledTime, location);
     await flutterLocalNotificationsPlugin.zonedSchedule(
       0,
       'Reminder',
       body,
-      scheduledTime,
+      tzDate,
       details,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.wallClockTime,

@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:rr_attendance/services/database.dart';
 import 'package:rr_attendance/services/notifications.dart';
+import 'package:rr_attendance/widgets/flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:rr_attendance/widgets/wave/config.dart';
 import 'package:rr_attendance/widgets/wave/wave.dart';
 
@@ -34,7 +35,7 @@ class _TimeTrackerState extends State<TimeTracker>
     super.initState();
     _buttonAnimController =
         AnimationController(duration: Duration(milliseconds: 300), vsync: this);
-    _buttonColorTween = ColorTween(begin: Colors.indigo, end: Colors.red[700])
+    _buttonColorTween = ColorTween(begin: Colors.indigo, end: Colors.grey[850])
         .animate(_buttonAnimController);
     widget.db.getInTimestamp(widget.user).then((value) {
       if (value != null) {
@@ -92,6 +93,7 @@ class _TimeTrackerState extends State<TimeTracker>
   }
 
   void clockButtonPressed() {
+    widget.notifications.cancelNotifications();
     setState(() {
       _isLoading = true;
     });
@@ -134,47 +136,28 @@ class _TimeTrackerState extends State<TimeTracker>
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Stack(
-        children: <Widget>[
-          Align(
-            alignment: FractionalOffset.bottomCenter,
-            child: buildBackgroundWave(),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(8),
-                child: buildTimeTicker(),
-              ),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.all(32),
-                      child: Row(
-                        children: [
-                          Spacer(
-                            flex: 11,
-                          ),
-                          buildClockButton(),
-                          buildReminderButton(),
-                          Spacer(
-                            flex: 4,
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
+    return Scaffold(
+      floatingActionButton: buildActionSpeedDial(),
+      body: Container(
+        child: Stack(
+          children: <Widget>[
+            Align(
+              alignment: FractionalOffset.bottomCenter,
+              child: buildBackgroundWave(),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: buildTimeTicker(),
                 ),
-              ),
-            ],
-          ),
-          showLoading()
-        ],
+              ],
+            ),
+            showLoading()
+          ],
+        ),
       ),
     );
   }
@@ -210,41 +193,82 @@ class _TimeTrackerState extends State<TimeTracker>
     );
   }
 
-  Widget buildClockButton() {
+  Widget buildActionSpeedDial() {
     return AnimatedBuilder(
       animation: _buttonColorTween,
-      builder: (context, child) => RawMaterialButton(
-        onPressed: clockButtonPressed,
-        elevation: 3,
-        fillColor: _buttonColorTween.value,
-        padding: EdgeInsets.all(12),
-        shape: CircleBorder(),
-        child: Icon(
-          _isClockedIn ? Icons.timer_off : Icons.timer,
-          size: 64,
-          color: Colors.grey[100],
-        ),
+      builder: (context, child) => SpeedDial(
+        animatedIcon: AnimatedIcons.menu_close,
+        animatedIconTheme: IconThemeData(size: 36),
+        backgroundColor: _buttonColorTween.value,
+        overlayColor: Colors.black,
+        overlayOpacity: 0,
+        buttonSize: 80,
+        children: [
+          SpeedDialChild(
+            child: Icon(
+              _isClockedIn ? Icons.timer_off : Icons.timer,
+              size: 36,
+            ),
+            labelWidget: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                _isClockedIn ? 'Clock Out' : 'Clock In',
+                style: TextStyle(fontSize: 22, color: Colors.white),
+              ),
+            ),
+            backgroundColor: _isClockedIn ? Colors.red[700] : Colors.indigo,
+            onTap: clockButtonPressed,
+          ),
+          SpeedDialChild(
+            child: Icon(
+              Icons.add_alert,
+              size: 36,
+            ),
+            labelWidget: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                _isClockedIn ? 'Clock Out Reminder' : 'Clock In Reminder',
+                style: TextStyle(fontSize: 22, color: Colors.white),
+              ),
+            ),
+            backgroundColor: Colors.amber,
+            onTap: setNewReminder,
+          ),
+        ],
       ),
     );
   }
 
-  Widget buildReminderButton() {
-    return AnimatedOpacity(
-      opacity: _isClockedIn ? 1.0 : 0.0,
-      duration: Duration(milliseconds: 250),
-      child: RawMaterialButton(
-        onPressed: () {},
-        elevation: 3,
-        fillColor: Colors.amber,
-        padding: EdgeInsets.all(12),
-        shape: CircleBorder(),
-        child: Icon(
-          Icons.add_alert,
-          size: 32,
-          color: Colors.grey[100],
-        ),
-      ),
+  Future<void> setNewReminder() async {
+    TimeOfDay selectedTime = await showTimePicker(
+      context: context,
+      initialTime:
+          TimeOfDay.fromDateTime(DateTime.now().add(Duration(minutes: 1))),
+      confirmText: 'Confirm',
+      cancelText: 'Cancel',
+      helpText:
+          _isClockedIn ? 'Set Clock Out Reminder' : 'Set Clock In Reminder',
     );
+    if (selectedTime != null) {
+      DateTime reminderTime = DateTime.now();
+      reminderTime = DateTime(reminderTime.year, reminderTime.month,
+          reminderTime.day, selectedTime.hour, selectedTime.minute);
+      if (reminderTime.isBefore(DateTime.now())) {
+        reminderTime = reminderTime.add(Duration(days: 1));
+      }
+      await widget.notifications.cancelNotifications();
+      widget.notifications.scheduleNotification(
+          '0',
+          _isClockedIn ? 'It\'s time to clock out!' : 'It\'s time to clock in!',
+          reminderTime);
+      Scaffold.of(context).showSnackBar(SnackBar(
+        content: Text(
+          'Reminder scheduled.',
+          style: TextStyle(color: Colors.white, fontSize: 16),
+        ),
+        backgroundColor: Colors.grey[900],
+      ));
+    }
   }
 
   Widget buildBackgroundWave() {
