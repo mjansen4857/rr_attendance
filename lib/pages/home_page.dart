@@ -120,7 +120,9 @@ class _HomePageState extends State<HomePage> {
           db: widget.db,
         );
       case PageState.CONTROL_PANEL:
-        return ControlPanelPage();
+        return ControlPanelPage(
+          db: widget.db,
+        );
       case PageState.TIME_TRACKER:
       default:
         return TimeTracker(
@@ -190,42 +192,6 @@ class _HomePageState extends State<HomePage> {
                     });
                   },
                 ),
-                Visibility(
-                  child: Divider(),
-                  visible: _isAdmin,
-                ),
-                Visibility(
-                  child: ListTile(
-                    leading: Icon(
-                      Icons.add_alert,
-                      color: Colors.grey,
-                    ),
-                    title: Text('Requests'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      setState(() {
-                        _pageState = PageState.REQUESTS;
-                      });
-                    },
-                  ),
-                  visible: _isAdmin,
-                ),
-                Visibility(
-                  child: ListTile(
-                    leading: Icon(
-                      Icons.settings,
-                      color: Colors.grey,
-                    ),
-                    title: Text('Control Panel'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      setState(() {
-                        _pageState = PageState.CONTROL_PANEL;
-                      });
-                    },
-                  ),
-                  visible: _isAdmin,
-                ),
               ],
             ),
           ),
@@ -236,23 +202,38 @@ class _HomePageState extends State<HomePage> {
                 child: Column(
                   children: <Widget>[
                     Divider(),
-                    // ListTile(
-                    //   leading: Icon(
-                    //     Icons.settings,
-                    //     color: Colors.grey,
-                    //   ),
-                    //   title: Text(
-                    //     'Settings',
-                    //     style: TextStyle(fontSize: 15),
-                    //   ),
-                    //   onTap: () {
-                    //     Navigator.pop(context);
-                    //     Navigator.push(
-                    //         context,
-                    //         MaterialPageRoute(
-                    //             builder: (context) => SettingsPage()));
-                    //   },
-                    // ),
+                    Visibility(
+                      child: ListTile(
+                        leading: Icon(
+                          Icons.add_alert,
+                          color: Colors.grey,
+                        ),
+                        title: Text('Requests'),
+                        onTap: () {
+                          Navigator.pop(context);
+                          setState(() {
+                            _pageState = PageState.REQUESTS;
+                          });
+                        },
+                      ),
+                      visible: _isAdmin,
+                    ),
+                    Visibility(
+                      child: ListTile(
+                        leading: Icon(
+                          Icons.settings,
+                          color: Colors.grey,
+                        ),
+                        title: Text('Control Panel'),
+                        onTap: () {
+                          Navigator.pop(context);
+                          setState(() {
+                            _pageState = PageState.CONTROL_PANEL;
+                          });
+                        },
+                      ),
+                      visible: _isAdmin,
+                    ),
                     ListTile(
                       leading: Icon(
                         Icons.exit_to_app,

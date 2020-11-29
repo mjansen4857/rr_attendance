@@ -171,6 +171,7 @@ class _TimeTrackerState extends State<TimeTracker>
     );
     Text separator = Text(':', style: digitStyle);
     return Card(
+      elevation: 4,
       child: Center(
         child: Padding(
           padding: const EdgeInsets.all(8),
@@ -197,6 +198,7 @@ class _TimeTrackerState extends State<TimeTracker>
     return AnimatedBuilder(
       animation: _buttonColorTween,
       builder: (context, child) => SpeedDial(
+        elevation: 8,
         animatedIcon: AnimatedIcons.menu_close,
         animatedIconTheme: IconThemeData(size: 36),
         backgroundColor: _buttonColorTween.value,
@@ -227,7 +229,7 @@ class _TimeTrackerState extends State<TimeTracker>
             labelWidget: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
-                _isClockedIn ? 'Clock Out Reminder' : 'Clock In Reminder',
+                'Set Reminder',
                 style: TextStyle(fontSize: 22, color: Colors.white),
               ),
             ),

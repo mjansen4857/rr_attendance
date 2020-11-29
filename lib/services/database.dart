@@ -36,6 +36,22 @@ class Database {
     return userDocSnapshot.data()['team'];
   }
 
+  Future<int> getTotalUsers() async {
+    QuerySnapshot userQuery = await users.get();
+    return userQuery.docs.length;
+  }
+
+  Future<int> getClockedInUsers() async {
+    QuerySnapshot userQuery = await users.get();
+    int total = 0;
+    for (var docSnap in userQuery.docs) {
+      if (docSnap.get('in_timestamp') != null) {
+        total++;
+      }
+    }
+    return total;
+  }
+
   Future<bool> isUserAdmin(User user) async {
     DocumentSnapshot userDocSnapshot = await users.doc(user.uid).get();
     return userDocSnapshot.data()['is_admin'];
@@ -134,7 +150,7 @@ class Database {
   Future<QuerySnapshot> getAllUserDocsFromTeam(int team) async {
     QuerySnapshot querySnapshot = await users
         .where('team', isEqualTo: team)
-        .where('total_hours', isGreaterThanOrEqualTo: 0.1)
+        .where('total_hours', isGreaterThanOrEqualTo: 0.05)
         .orderBy('total_hours', descending: true)
         .get();
     return querySnapshot;
