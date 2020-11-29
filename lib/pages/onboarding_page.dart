@@ -20,12 +20,28 @@ class OnboardingPage extends StatelessWidget {
       pages: <PageViewModel>[
         PageViewModel(
           title: 'Tracking Time',
-          bodyWidget: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          bodyWidget: Column(
             children: [
-              Text('Tap on the '),
-              Icon(Icons.timer),
-              Text(' button to clock in and out'),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Tap on the '),
+                  Icon(Icons.timer),
+                  Text(' button to clock in and out'),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Tap on the '),
+                  Icon(Icons.add_alert),
+                  Text(' button to schedule a reminder'),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [],
+              ),
             ],
           ),
           image: Center(
