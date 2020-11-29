@@ -31,6 +31,11 @@ class Database {
     return settingsDoc.data()['permission_code'] == permissionCode;
   }
 
+  Future<bool> isLeaderboardEnabled() async {
+    DocumentSnapshot settingsDoc = await settings.doc('settings').get();
+    return settingsDoc.data()['show_leaderboard'];
+  }
+
   Future<int> getTeamNumber(User user) async {
     DocumentSnapshot userDocSnapshot = await users.doc(user.uid).get();
     return userDocSnapshot.data()['team'];

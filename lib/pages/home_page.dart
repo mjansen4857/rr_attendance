@@ -29,6 +29,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   PageState _pageState = PageState.TIME_TRACKER;
   bool _isAdmin = false;
+  bool _leaderboardEnabled = false;
 
   void signOut() async {
     try {
@@ -43,8 +44,11 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     widget.db.isUserAdmin(widget.user).then((isAdmin) {
-      setState(() {
-        _isAdmin = isAdmin;
+      widget.db.isLeaderboardEnabled().then((leaderboardEnabled) {
+        setState(() {
+          _isAdmin = isAdmin;
+          _leaderboardEnabled = leaderboardEnabled;
+        });
       });
     });
   }
@@ -178,19 +182,24 @@ class _HomePageState extends State<HomePage> {
                     });
                   },
                 ),
-                ListTile(
-                  leading: Icon(
-                    CustomIcons.leaderboard,
-                    color: Colors.grey,
-                    size: 16,
+                Visibility(
+                  child: ListTile(
+                    leading: Icon(
+                      CustomIcons.leaderboard,
+                      color: Colors.grey,
+                      size: 16,
+                    ),
+                    title: Text('Leaderboard'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      setState(() {
+                        if (_leaderboardEnabled || _isAdmin) {
+                          _pageState = PageState.LEADERBOARD;
+                        }
+                      });
+                    },
                   ),
-                  title: Text('Leaderboard'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    setState(() {
-                      _pageState = PageState.LEADERBOARD;
-                    });
-                  },
+                  visible: _leaderboardEnabled || _isAdmin,
                 ),
               ],
             ),
