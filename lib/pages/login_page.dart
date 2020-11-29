@@ -136,18 +136,13 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget buildLogo() {
-    double r = 60.0;
     return Padding(
       padding: EdgeInsets.fromLTRB(0.0, 70.0, 0.0, 0.0),
       child: Center(
         child: SizedBox(
-          width: r * 2,
-          height: r * 2,
-          child: CircleAvatar(
-            backgroundColor: Colors.transparent,
-            radius: r,
-            backgroundImage: AssetImage('images/rr_logo.jpg'),
-          ),
+          width: 150,
+          height: 150,
+          child: Image(image: AssetImage('images/rr_logo.png')),
         ),
       ),
     );

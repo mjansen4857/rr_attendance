@@ -59,7 +59,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - images/rr_logo.jpg
+    - images/rr_logo.png
     - images/time_tracker.png
     - images/logged_hours.png
     - images/time_request.png
