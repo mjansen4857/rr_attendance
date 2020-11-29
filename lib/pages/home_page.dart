@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:rr_attendance/custom_icons.dart';
+import 'package:rr_attendance/pages/control_panel_page.dart';
 import 'package:rr_attendance/pages/leaderboard_page.dart';
 import 'package:rr_attendance/pages/requests_page.dart';
 import 'package:rr_attendance/pages/time_card_page.dart';
@@ -9,7 +10,7 @@ import 'package:rr_attendance/services/authentication.dart';
 import 'package:rr_attendance/services/database.dart';
 import 'package:rr_attendance/services/notifications.dart';
 
-enum PageState { TIME_TRACKER, TIME_CARD, LEADERBOARD, REQUESTS }
+enum PageState { TIME_TRACKER, TIME_CARD, LEADERBOARD, REQUESTS, CONTROL_PANEL }
 
 class HomePage extends StatefulWidget {
   final User user;
@@ -88,6 +89,11 @@ class _HomePageState extends State<HomePage> {
           title: Text('Requests'),
           backgroundColor: Colors.indigo,
         );
+      case PageState.CONTROL_PANEL:
+        return AppBar(
+          title: Text('Control Panel'),
+          backgroundColor: Colors.indigo,
+        );
       case PageState.TIME_TRACKER:
       default:
         return AppBar(
@@ -113,6 +119,8 @@ class _HomePageState extends State<HomePage> {
         return RequestsPage(
           db: widget.db,
         );
+      case PageState.CONTROL_PANEL:
+        return ControlPanelPage();
       case PageState.TIME_TRACKER:
       default:
         return TimeTracker(
@@ -183,6 +191,10 @@ class _HomePageState extends State<HomePage> {
                   },
                 ),
                 Visibility(
+                  child: Divider(),
+                  visible: _isAdmin,
+                ),
+                Visibility(
                   child: ListTile(
                     leading: Icon(
                       Icons.add_alert,
@@ -193,6 +205,22 @@ class _HomePageState extends State<HomePage> {
                       Navigator.pop(context);
                       setState(() {
                         _pageState = PageState.REQUESTS;
+                      });
+                    },
+                  ),
+                  visible: _isAdmin,
+                ),
+                Visibility(
+                  child: ListTile(
+                    leading: Icon(
+                      Icons.settings,
+                      color: Colors.grey,
+                    ),
+                    title: Text('Control Panel'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      setState(() {
+                        _pageState = PageState.CONTROL_PANEL;
                       });
                     },
                   ),
