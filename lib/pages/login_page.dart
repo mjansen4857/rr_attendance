@@ -220,6 +220,7 @@ class _LoginPageState extends State<LoginPage> {
           hintStyle: TextStyle(
             fontSize: 18.0,
             color: Colors.grey[400],
+            backgroundColor: Colors.transparent,
           ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10.0),
