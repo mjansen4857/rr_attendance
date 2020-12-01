@@ -60,7 +60,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
             elevation: 5,
             color: Color(0xff343434),
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+              padding: const EdgeInsets.fromLTRB(8, 10, 8, 10),
               child: Center(
                 child: Text(
                   'Team Total: ${_3015Total.toStringAsFixed(1)} hours',
@@ -84,7 +84,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
             elevation: 5,
             color: Color(0xff343434),
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+              padding: const EdgeInsets.fromLTRB(8, 10, 8, 10),
               child: Center(
                 child: Text(
                   'Team Total: ${_2716Total.toStringAsFixed(1)} hours',
