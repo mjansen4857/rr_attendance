@@ -90,9 +90,7 @@ class _ControlPanelPageState extends State<ControlPanelPage> {
                 RaisedButton(
                   onPressed: () {
                     // Disable button so that it can only be pressed in a debug environment
-                    if (false) {
-                      _showResetHoursDialog();
-                    }
+                    // _showResetHoursDialog();
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
