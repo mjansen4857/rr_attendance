@@ -4,13 +4,21 @@ import 'package:rr_attendance/custom_icons.dart';
 import 'package:rr_attendance/pages/control_panel_page.dart';
 import 'package:rr_attendance/pages/leaderboard_page.dart';
 import 'package:rr_attendance/pages/requests_page.dart';
+import 'package:rr_attendance/pages/settings_page.dart';
 import 'package:rr_attendance/pages/time_card_page.dart';
 import 'package:rr_attendance/pages/time_tracker_page.dart';
 import 'package:rr_attendance/services/authentication.dart';
 import 'package:rr_attendance/services/database.dart';
 import 'package:rr_attendance/services/notifications.dart';
 
-enum PageState { TIME_TRACKER, TIME_CARD, LEADERBOARD, REQUESTS, CONTROL_PANEL }
+enum PageState {
+  TIME_TRACKER,
+  TIME_CARD,
+  LEADERBOARD,
+  REQUESTS,
+  CONTROL_PANEL,
+  SETTINGS
+}
 
 class HomePage extends StatefulWidget {
   final User user;
@@ -98,6 +106,11 @@ class _HomePageState extends State<HomePage> {
           title: Text('Control Panel'),
           backgroundColor: Colors.indigo,
         );
+      case PageState.SETTINGS:
+        return AppBar(
+          title: Text('Settings'),
+          backgroundColor: Colors.indigo,
+        );
       case PageState.TIME_TRACKER:
       default:
         return AppBar(
@@ -125,6 +138,11 @@ class _HomePageState extends State<HomePage> {
         );
       case PageState.CONTROL_PANEL:
         return ControlPanelPage(
+          db: widget.db,
+        );
+      case PageState.SETTINGS:
+        return SettingsPage(
+          user: widget.user,
           db: widget.db,
         );
       case PageState.TIME_TRACKER:
@@ -230,7 +248,7 @@ class _HomePageState extends State<HomePage> {
                     Visibility(
                       child: ListTile(
                         leading: Icon(
-                          Icons.settings,
+                          Icons.build,
                           color: Colors.grey,
                         ),
                         title: Text('Control Panel'),
@@ -242,6 +260,22 @@ class _HomePageState extends State<HomePage> {
                         },
                       ),
                       visible: _isAdmin,
+                    ),
+                    ListTile(
+                      leading: Icon(
+                        Icons.settings,
+                        color: Colors.grey,
+                      ),
+                      title: Text(
+                        'Settings',
+                        style: TextStyle(fontSize: 15),
+                      ),
+                      onTap: () {
+                        Navigator.pop(context);
+                        setState(() {
+                          _pageState = PageState.SETTINGS;
+                        });
+                      },
                     ),
                     ListTile(
                       leading: Icon(

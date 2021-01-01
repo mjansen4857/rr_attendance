@@ -68,6 +68,16 @@ class Database {
     return userDoc.update({'in_timestamp': Timestamp.now()});
   }
 
+  Future<void> updateUserName(User user, String name) async {
+    DocumentReference userDoc = users.doc(user.uid);
+    return userDoc.update({'name': name});
+  }
+
+  Future<void> updateUserTeam(User user, int teamNumber) async {
+    DocumentReference userDoc = users.doc(user.uid);
+    return userDoc.update({'team': teamNumber});
+  }
+
   Future<double> clockOutUser(User user) async {
     Timestamp inTime = await getInTimestamp(user);
     if (inTime != null) {
