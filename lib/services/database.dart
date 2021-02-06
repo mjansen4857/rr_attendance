@@ -162,6 +162,19 @@ class Database {
     return userDocSnapshot.data()['total_hours'].toDouble();
   }
 
+  Future<double> getHoursFromDate(String uid, DateTime date) async {
+    DocumentReference userDoc = users.doc(uid);
+    CollectionReference timecardCollection = userDoc.collection('timecard');
+    DocumentReference inDateDoc =
+        timecardCollection.doc('${date.year}-${date.month}-${date.day}');
+    DocumentSnapshot inDateDocSnapshot = await inDateDoc.get();
+    double prevHours = 0;
+    if (inDateDocSnapshot.exists) {
+      prevHours = inDateDocSnapshot.data()['hours'];
+    }
+    return prevHours;
+  }
+
   Future<QuerySnapshot> getAllUserDocsFromTeam(int team) async {
     QuerySnapshot querySnapshot = await users
         .where('team', isEqualTo: team)

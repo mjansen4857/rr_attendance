@@ -6,12 +6,13 @@ class RequestCard extends StatelessWidget {
   final Database db;
   final DateTime date;
   final String hours;
+  final String prevHours;
   final String name;
   final String uid;
   final Function(RequestCard) removeCardCallback;
 
   RequestCard(DocumentSnapshot requestSnapshot,
-      {this.db, this.removeCardCallback})
+      {this.db, this.removeCardCallback, this.prevHours})
       : date = requestSnapshot.data()['changeDate'].toDate(),
         hours = requestSnapshot.data()['newHours'].toString(),
         name = requestSnapshot.data()['name'].toString(),
@@ -32,6 +33,9 @@ class RequestCard extends StatelessWidget {
                 date.year.toString() +
                 ' - ' +
                 hours +
+                '(' +
+                prevHours +
+                ')' +
                 ' hours'),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,

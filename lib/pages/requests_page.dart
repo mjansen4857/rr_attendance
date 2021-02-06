@@ -20,15 +20,19 @@ class _RequestsPageState extends State<RequestsPage> {
   @override
   void initState() {
     super.initState();
-    widget.db.getTimeRequests().then((querySnapshot) {
+    widget.db.getTimeRequests().then((querySnapshot) async {
       List<DocumentSnapshot> docs = querySnapshot.docs;
       List<RequestCard> cards = [];
 
       for (var doc in docs) {
+        String uid = doc.data()['user'];
+        DateTime date = doc.data()['changeDate'].toDate();
+        double prevHours = await widget.db.getHoursFromDate(uid, date);
         cards.add(RequestCard(
           doc,
           db: widget.db,
           removeCardCallback: _removeCardCallback,
+          prevHours: prevHours.toStringAsFixed(2),
         ));
       }
 
