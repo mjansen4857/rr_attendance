@@ -300,7 +300,7 @@ class _LoginPageState extends State<LoginPage> {
                 Padding(
                   padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
                   child: Text(
-                    'Sign in with Apple ID',
+                    'Sign in with Apple',
                     style: TextStyle(fontSize: 20),
                   ),
                 ),
