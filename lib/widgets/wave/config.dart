@@ -42,9 +42,6 @@ class CustomConfig extends Config {
     @required this.heightPercentages,
     this.blur,
   })  : assert(() {
-          if (colors == null && gradients == null) {
-            throwNullError('custom', 'colors` or `gradients');
-          }
           return true;
         }()),
         assert(() {
@@ -56,15 +53,9 @@ class CustomConfig extends Config {
           return true;
         }()),
         assert(() {
-          if (durations == null) {
-            throwNullError('custom', 'durations');
-          }
           return true;
         }()),
         assert(() {
-          if (heightPercentages == null) {
-            throwNullError('custom', 'heightPercentages');
-          }
           return true;
         }()),
         assert(() {
