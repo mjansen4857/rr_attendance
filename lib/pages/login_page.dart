@@ -1,7 +1,11 @@
 import 'dart:io';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
+import 'package:rr_attendance/services/authentication.dart';
+import 'package:rr_attendance/services/database.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 class LoginPage extends StatefulWidget {
   LoginPage({super.key});
@@ -15,13 +19,32 @@ enum SigninMethod {
   Apple,
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
-
+  late AnimationController _scaleController;
+  late Animation<double> _scaleAnimation;
   int? _teamNumber;
   String? _permissionCode;
   String _errorMessage = '';
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _scaleController =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 500));
+    _scaleAnimation =
+        CurvedAnimation(parent: _scaleController, curve: Curves.ease);
+
+    _scaleController.forward();
+  }
+
+  @override
+  void dispose() {
+    _scaleController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,24 +52,28 @@ class _LoginPageState extends State<LoginPage> {
       body: Stack(
         children: [
           Center(
-            child: Padding(
-              padding: const EdgeInsets.all(48.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _buildLogo(),
-                    SizedBox(height: 48),
-                    _buildTeamDropdown(),
-                    SizedBox(height: 12),
-                    _buildPermissionInput(),
-                    SizedBox(height: 48),
-                    _buildGoogleSignIn(),
-                    _buildAppleSignIn(),
-                    SizedBox(height: 12),
-                    _buildErrorMessage(),
-                  ],
+            child: ScaleTransition(
+              scale: _scaleAnimation,
+              child: Padding(
+                padding: const EdgeInsets.all(48.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildLogo(),
+                      SizedBox(height: 48),
+                      _buildTeamDropdown(),
+                      SizedBox(height: 12),
+                      _buildPermissionInput(),
+                      SizedBox(height: 48),
+                      _buildGoogleSignIn(),
+                      SizedBox(height: 8),
+                      _buildAppleSignIn(),
+                      SizedBox(height: 12),
+                      _buildErrorMessage(),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -129,18 +156,44 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _buildGoogleSignIn() {
-    return SignInButton(
-      Buttons.GoogleDark,
-      onPressed: () => _validateAndSubmit(SigninMethod.Apple),
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+    return SizedBox(
+      height: 44,
+      child: ElevatedButton(
+        onPressed: () => _validateAndSubmit(SigninMethod.Google),
+        style: ElevatedButton.styleFrom(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Image.asset(
+              'images/google_logo.png',
+              height: 24,
+            ),
+            SizedBox(width: 8),
+            Text(
+              'Sign in with Google',
+              style: TextStyle(
+                fontSize: 18,
+                color: colorScheme.onSurface,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
   Widget _buildAppleSignIn() {
     return Visibility(
       visible: Platform.isIOS,
-      child: SignInButton(
-        Buttons.AppleDark,
-        onPressed: () => _validateAndSubmit(SigninMethod.Google),
+      child: SignInWithAppleButton(
+        onPressed: () => _validateAndSubmit(SigninMethod.Apple),
       ),
     );
   }
@@ -189,6 +242,43 @@ class _LoginPageState extends State<LoginPage> {
         _errorMessage = '';
         _isLoading = true;
       });
+
+      try {
+        bool permission = await Database.validatePermission(_permissionCode!);
+
+        if (!permission) {
+          setState(() {
+            _isLoading = false;
+            _errorMessage = 'Invalid permission code';
+          });
+        } else {
+          User? user;
+          if (signinMethod == SigninMethod.Google) {
+            user = await Authentication.signInWithGoogle();
+          } else if (signinMethod == SigninMethod.Apple) {
+            user = await Authentication.signInWithApple();
+          }
+
+          if (user == null) {
+            setState(() {
+              _isLoading = false;
+            });
+          } else {
+            bool newUser =
+                await Database.addUserIfNotExists(user, _teamNumber!);
+            print('Signed in user: ${user.uid}');
+
+            Navigator.of(context).pop(newUser);
+          }
+        }
+      } catch (e) {
+        print('Error: $e');
+        setState(() {
+          _isLoading = false;
+          _errorMessage = e.toString();
+          _formKey.currentState!.reset();
+        });
+      }
     }
   }
 }
