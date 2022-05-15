@@ -37,18 +37,84 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _buildBody(),
-    );
-  }
-
-  Widget _buildBody() {
     if (_user == null) {
       return Container();
     }
 
+    return Scaffold(
+      body: _buildBody(),
+      appBar: AppBar(
+        title: Text('Attendance'),
+      ),
+      drawer: _buildDrawer(),
+    );
+  }
+
+  Widget _buildBody() {
     return Center(
       child: Text('Signed in'),
+    );
+  }
+
+  Widget _buildDrawer() {
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+    return ClipRRect(
+      borderRadius: BorderRadius.only(
+        topRight: Radius.circular(16),
+        bottomRight: Radius.circular(16),
+      ),
+      child: Drawer(
+        child: Column(
+          children: [
+            UserAccountsDrawerHeader(
+              accountName: Text(_user!.displayName ?? ''),
+              accountEmail: Text(_user!.email ?? ''),
+              currentAccountPicture: CircleAvatar(
+                backgroundColor: colorScheme.surfaceVariant,
+                foregroundImage: (_user!.photoURL != null)
+                    ? NetworkImage(_user!.photoURL!)
+                    : Image.asset('images/profile.png').image,
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.timer),
+              title: Text('Time Tracker'),
+              onTap: () {},
+            ),
+            ListTile(
+              leading: Icon(Icons.leaderboard),
+              title: Text('Leaderboard'),
+              onTap: () {},
+            ),
+            Expanded(
+              child: Container(),
+            ),
+            Divider(),
+            ListTile(
+              leading: Icon(Icons.add_alert),
+              title: Text('Requests'),
+              onTap: () {},
+            ),
+            ListTile(
+              leading: Icon(Icons.build),
+              title: Text('Control Panel'),
+              onTap: () {},
+            ),
+            ListTile(
+              leading: Icon(Icons.settings),
+              title: Text('Settings'),
+              onTap: () {},
+            ),
+            ListTile(
+              leading: Icon(Icons.logout),
+              title: Text('Sign Out'),
+              onTap: () {},
+            ),
+            SizedBox(height: 12),
+          ],
+        ),
+      ),
     );
   }
 }
