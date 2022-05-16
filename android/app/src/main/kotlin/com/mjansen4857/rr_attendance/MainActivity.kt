@@ -1,4 +1,4 @@
-package com.example.rr_attendance
+package com.mjansen4857.rr_attendance
 
 import io.flutter.embedding.android.FlutterActivity
 

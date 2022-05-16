@@ -2,13 +2,14 @@ import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:rr_attendance/services/authentication.dart';
 import 'package:rr_attendance/services/database.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 class LoginPage extends StatefulWidget {
-  LoginPage({super.key});
+  final String permissionCode;
+
+  LoginPage({required this.permissionCode, super.key});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -244,9 +245,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       });
 
       try {
-        bool permission = await Database.validatePermission(_permissionCode!);
-
-        if (!permission) {
+        if (_permissionCode != widget.permissionCode) {
           setState(() {
             _isLoading = false;
             _errorMessage = 'Invalid permission code';

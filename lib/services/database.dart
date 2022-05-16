@@ -27,9 +27,17 @@ class Database {
     return false;
   }
 
-  static Future<bool> validatePermission(String permissionCode) async {
+  static Future<Settings> getSettings() async {
     DocumentSnapshot settingsDoc = await _settings.doc('settings').get();
-    return (settingsDoc.data() as Map<String, Object?>)['permission_code'] ==
-        permissionCode;
+    return Settings.fromJson(settingsDoc.data() as Map<String, dynamic>);
   }
+}
+
+class Settings {
+  final String permissionCode;
+  final bool leaderboardEnabled;
+
+  Settings.fromJson(Map<String, dynamic> json)
+      : this.permissionCode = json['permission_code'],
+        this.leaderboardEnabled = json['show_leaderboard'];
 }
