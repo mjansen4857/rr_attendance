@@ -14,6 +14,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   late Settings _dbSettings;
   User? _user;
+  int _selectedTab = 0;
 
   @override
   void initState() {
@@ -43,92 +44,113 @@ class _HomePageState extends State<HomePage> {
       body: _buildBody(),
       appBar: AppBar(
         title: Text('Attendance'),
+        elevation: 1,
+        leading: MediaQuery.of(context).size.width < 640
+            ? IconButton(
+                onPressed: _signOut,
+                icon: Icon(Icons.logout),
+                tooltip: 'Sign Out',
+              )
+            : null,
       ),
-      drawer: _buildDrawer(),
+      bottomNavigationBar: MediaQuery.of(context).size.width < 640
+          ? _buildNavigationBar()
+          : null,
     );
   }
 
   Widget _buildBody() {
-    return Center(
-      child: Text('Signed in'),
+    return Row(
+      children: [
+        if (MediaQuery.of(context).size.width >= 640) _buildNavigationRail(),
+        Expanded(
+          child: Center(
+            child: Text('Signed in'),
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _buildDrawer() {
+  Widget _buildNavigationBar() {
+    return NavigationBar(
+      selectedIndex: _selectedTab,
+      onDestinationSelected: (int index) {
+        setState(() {
+          _selectedTab = index;
+        });
+      },
+      destinations: [
+        NavigationDestination(
+          icon: Icon(Icons.timer),
+          label: 'Time Tracker',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.leaderboard),
+          label: 'Leaderboard',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.settings),
+          label: 'Settings',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.add_alert),
+          label: 'Requests',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.build),
+          label: 'Control Panel',
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNavigationRail() {
     ColorScheme colorScheme = Theme.of(context).colorScheme;
 
-    return ClipRRect(
-      borderRadius: BorderRadius.only(
-        topRight: Radius.circular(16),
-        bottomRight: Radius.circular(16),
-      ),
-      child: Drawer(
-        child: Column(
-          children: [
-            UserAccountsDrawerHeader(
-              accountName: Text(_user!.displayName ?? ''),
-              accountEmail: Text(_user!.email ?? ''),
-              currentAccountPicture: CircleAvatar(
-                backgroundColor: colorScheme.surfaceVariant,
-                foregroundImage: (_user!.photoURL != null)
-                    ? NetworkImage(_user!.photoURL!)
-                    : Image.asset('images/profile.png').image,
-              ),
+    return NavigationRail(
+      selectedIndex: _selectedTab,
+      onDestinationSelected: (int index) {
+        setState(() {
+          _selectedTab = index;
+        });
+      },
+      labelType: NavigationRailLabelType.selected,
+      trailing: Expanded(
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 12.0),
+            child: IconButton(
+              onPressed: _signOut,
+              icon: Icon(Icons.logout),
+              tooltip: 'Sign Out',
             ),
-            ListTile(
-              leading: Icon(Icons.timer),
-              title: Text('Time Tracker'),
-              onTap: () {},
-            ),
-            Visibility(
-              visible: _dbSettings.leaderboardEnabled,
-              child: ListTile(
-                leading: Icon(Icons.leaderboard),
-                title: Text('Leaderboard'),
-                onTap: () {},
-              ),
-            ),
-            Expanded(
-              child: Container(),
-            ),
-            Divider(),
-            ListTile(
-              leading: Icon(Icons.add_alert),
-              title: Text('Requests'),
-              onTap: () {},
-            ),
-            Visibility(
-              child: ListTile(
-                leading: Icon(Icons.build),
-                title: Text('Control Panel'),
-                onTap: () {},
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('Settings'),
-              onTap: () {},
-            ),
-            ListTile(
-              leading: Icon(Icons.logout),
-              title: Text('Sign Out'),
-              onTap: () async {
-                Authentication.signOut();
-                setState(() {
-                  _user = null;
-                });
-
-                _showSignin().then((user) {
-                  setState(() {
-                    _user = user;
-                  });
-                });
-              },
-            ),
-            SizedBox(height: 12),
-          ],
+          ),
         ),
       ),
+      destinations: [
+        NavigationRailDestination(
+          icon: Icon(Icons.timer),
+          label: Text('Time Tracker'),
+        ),
+        NavigationRailDestination(
+          icon: Icon(Icons.leaderboard),
+          label: Text('Leaderboard'),
+        ),
+        NavigationRailDestination(
+          icon: Icon(Icons.settings),
+          label: Text('Settings'),
+        ),
+        NavigationRailDestination(
+          icon: Icon(Icons.add_alert),
+          label: Text('Requests'),
+        ),
+        NavigationRailDestination(
+          icon: Icon(Icons.build),
+          label: Text('Control Panel'),
+        ),
+      ],
     );
   }
 
@@ -144,5 +166,18 @@ class _HomePageState extends State<HomePage> {
         ));
 
     return await Authentication.getCurrentUser();
+  }
+
+  void _signOut() async {
+    Authentication.signOut();
+    setState(() {
+      _user = null;
+    });
+
+    _showSignin().then((user) {
+      setState(() {
+        _user = user;
+      });
+    });
   }
 }

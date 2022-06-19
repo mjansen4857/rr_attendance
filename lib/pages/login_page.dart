@@ -1,10 +1,7 @@
-import 'dart:io';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:rr_attendance/services/authentication.dart';
 import 'package:rr_attendance/services/database.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 class LoginPage extends StatefulWidget {
   final String permissionCode;
@@ -57,23 +54,24 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               scale: _scaleAnimation,
               child: Padding(
                 padding: const EdgeInsets.all(48.0),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildLogo(),
-                      SizedBox(height: 48),
-                      _buildTeamDropdown(),
-                      SizedBox(height: 12),
-                      _buildPermissionInput(),
-                      SizedBox(height: 48),
-                      _buildGoogleSignIn(),
-                      SizedBox(height: 8),
-                      _buildAppleSignIn(),
-                      SizedBox(height: 12),
-                      _buildErrorMessage(),
-                    ],
+                child: SizedBox(
+                  width: 500,
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _buildLogo(),
+                        SizedBox(height: 48),
+                        _buildTeamDropdown(),
+                        SizedBox(height: 12),
+                        _buildPermissionInput(),
+                        SizedBox(height: 48),
+                        _buildGoogleSignIn(),
+                        SizedBox(height: 12),
+                        _buildErrorMessage(),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -190,15 +188,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildAppleSignIn() {
-    return Visibility(
-      visible: Platform.isIOS,
-      child: SignInWithAppleButton(
-        onPressed: () => _validateAndSubmit(SigninMethod.Apple),
-      ),
-    );
-  }
-
   Widget _buildErrorMessage() {
     ColorScheme colorScheme = Theme.of(context).colorScheme;
 
@@ -254,8 +243,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
           User? user;
           if (signinMethod == SigninMethod.Google) {
             user = await Authentication.signInWithGoogle();
-          } else if (signinMethod == SigninMethod.Apple) {
-            user = await Authentication.signInWithApple();
           }
 
           if (user == null) {

@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -49,6 +46,17 @@ class DefaultFirebaseOptions {
     }
   }
 
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyAwdfFGTmtQN4N_FcTVZR3cj3dPHOMOYd0',
+    appId: '1:853905520563:web:c3138640b61b6b79a6fdc6',
+    messagingSenderId: '853905520563',
+    projectId: 'rr-attendance-4fe28',
+    authDomain: 'rr-attendance-4fe28.firebaseapp.com',
+    databaseURL: 'https://rr-attendance-4fe28.firebaseio.com',
+    storageBucket: 'rr-attendance-4fe28.appspot.com',
+    measurementId: 'G-X3EXB4PHKG',
+  );
+
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyBYLpFbmLH5O6b8UMjsXzs3VI9mR_izdhE',
     appId: '1:853905520563:android:261bca9babd5b6dba6fdc6',
@@ -60,13 +68,13 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyAiXHow-7C6-hxyz5CSmsFHMqxJ8q6vEzM',
-    appId: '1:853905520563:ios:0c8146122d6ce0a3a6fdc6',
+    appId: '1:853905520563:ios:68518c7a85ddbd93a6fdc6',
     messagingSenderId: '853905520563',
     projectId: 'rr-attendance-4fe28',
     databaseURL: 'https://rr-attendance-4fe28.firebaseio.com',
     storageBucket: 'rr-attendance-4fe28.appspot.com',
     androidClientId: '853905520563-9th1gppm7laba6bdcjl89lbsgq4dhpts.apps.googleusercontent.com',
-    iosClientId: '853905520563-n8am7kouuhuecab6stim4c9t909am69c.apps.googleusercontent.com',
-    iosBundleId: 'com.example.rrAttendance',
+    iosClientId: '853905520563-4840jpqb651dbl4efjd3mtjidkdanerm.apps.googleusercontent.com',
+    iosBundleId: 'com.mjansen4857.rrAttendance',
   );
 }

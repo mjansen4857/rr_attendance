@@ -3,12 +3,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class Database {
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  static final CollectionReference _users =
-      FirebaseFirestore.instance.collection('users');
+  static final CollectionReference _users = _firestore.collection('users');
   static final CollectionReference _timeRequests =
-      FirebaseFirestore.instance.collection('timeRequests');
+      _firestore.collection('timeRequests');
   static final CollectionReference _settings =
-      FirebaseFirestore.instance.collection('settings');
+      _firestore.collection('settings');
 
   static Future<bool> addUserIfNotExists(User user, int teamNumber) async {
     DocumentReference userDoc = _users.doc(user.uid);
