@@ -1,11 +1,11 @@
 {
-    "name": "rr_attendance",
-    "short_name": "rr_attendance",
+    "name": "Ranger Robotics Attendance",
+    "short_name": "Attendance",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Time tracking system for FRC teams 3015 and 2716",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
