@@ -1,6 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:rr_attendance/pages/control_panel_page.dart';
+import 'package:rr_attendance/pages/leaderboard_page.dart';
 import 'package:rr_attendance/pages/login_page.dart';
+import 'package:rr_attendance/pages/requests_page.dart';
+import 'package:rr_attendance/pages/settings_page.dart';
+import 'package:rr_attendance/pages/time_tracker_page.dart';
 import 'package:rr_attendance/services/authentication.dart';
 import 'package:rr_attendance/services/database.dart';
 
@@ -16,10 +21,14 @@ class _HomePageState extends State<HomePage> {
   User? _user;
   bool _isAdmin = false;
   int _selectedTab = 0;
+  late PageController _pageController;
 
   @override
   void initState() {
     super.initState();
+
+    _pageController = PageController();
+
     Database.getSettings().then((settings) {
       _dbSettings = settings;
 
@@ -36,6 +45,12 @@ class _HomePageState extends State<HomePage> {
         });
       });
     });
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 
   @override
@@ -60,8 +75,15 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildBody() {
-    return Center(
-      child: Text('Signed in'),
+    return PageView(
+      controller: _pageController,
+      children: [
+        TimeTrackerPage(),
+        if (_dbSettings.leaderboardEnabled) LeaderboardPage(),
+        SettingsPage(),
+        if (_isAdmin) RequestsPage(),
+        if (_isAdmin) ControlPanelPage(),
+      ],
     );
   }
 
@@ -71,6 +93,11 @@ class _HomePageState extends State<HomePage> {
       onDestinationSelected: (int index) {
         setState(() {
           _selectedTab = index;
+          _pageController.animateToPage(
+            _selectedTab,
+            duration: Duration(milliseconds: 200),
+            curve: Curves.easeInOut,
+          );
         });
       },
       destinations: [
@@ -78,10 +105,11 @@ class _HomePageState extends State<HomePage> {
           icon: Icon(Icons.timer),
           label: 'Time Tracker',
         ),
-        NavigationDestination(
-          icon: Icon(Icons.leaderboard),
-          label: 'Leaderboard',
-        ),
+        if (_dbSettings.leaderboardEnabled)
+          NavigationDestination(
+            icon: Icon(Icons.leaderboard),
+            label: 'Leaderboard',
+          ),
         NavigationDestination(
           icon: Icon(Icons.settings),
           label: 'Settings',
