@@ -77,6 +77,11 @@ class _HomePageState extends State<HomePage> {
   Widget _buildBody() {
     return PageView(
       controller: _pageController,
+      onPageChanged: (int index) {
+        setState(() {
+          _selectedTab = index;
+        });
+      },
       children: [
         TimeTrackerPage(),
         if (_dbSettings.leaderboardEnabled) LeaderboardPage(),
@@ -104,24 +109,29 @@ class _HomePageState extends State<HomePage> {
         NavigationDestination(
           icon: Icon(Icons.timer),
           label: 'Time Tracker',
+          tooltip: '',
         ),
         if (_dbSettings.leaderboardEnabled)
           NavigationDestination(
             icon: Icon(Icons.leaderboard),
             label: 'Leaderboard',
+            tooltip: '',
           ),
         NavigationDestination(
           icon: Icon(Icons.insights),
           label: 'Stats',
+          tooltip: '',
         ),
         NavigationDestination(
           icon: Icon(Icons.settings),
           label: 'Settings',
+          tooltip: '',
         ),
         if (_isAdmin)
           NavigationDestination(
             icon: Icon(Icons.build),
             label: 'Control Panel',
+            tooltip: '',
           ),
       ],
     );

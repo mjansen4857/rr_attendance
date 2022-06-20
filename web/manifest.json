@@ -4,7 +4,7 @@
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
-    "theme_color": "#0175C2",
+    "theme_color": "#1B1A1F",
     "description": "Time tracking system for FRC teams 3015 and 2716",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,

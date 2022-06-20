@@ -35,6 +35,22 @@ class Database {
     DocumentSnapshot settingsDoc = await _settings.doc('settings').get();
     return Settings.fromJson(settingsDoc.data() as Map<String, dynamic>);
   }
+
+  static Future<int> getNumUsers() async {
+    QuerySnapshot userQuery = await _users.get();
+    return userQuery.docs.length;
+  }
+
+  static Future<int> getNumClockedIn() async {
+    QuerySnapshot userQuery = await _users.get();
+    int total = 0;
+    for (var docSnap in userQuery.docs) {
+      if (docSnap.get('in_timestamp') != null) {
+        total++;
+      }
+    }
+    return total;
+  }
 }
 
 class Settings {
