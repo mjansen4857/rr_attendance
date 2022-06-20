@@ -14,6 +14,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   late Settings _dbSettings;
   User? _user;
+  bool _isAdmin = false;
   int _selectedTab = 0;
 
   @override
@@ -27,8 +28,11 @@ class _HomePageState extends State<HomePage> {
           user = await _showSignin();
         }
 
+        bool admin = await Database.isUserAdmin(user!);
+
         setState(() {
           _user = user;
+          _isAdmin = admin;
         });
       });
     });
@@ -45,30 +49,19 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text('Attendance'),
         elevation: 1,
-        leading: MediaQuery.of(context).size.width < 640
-            ? IconButton(
-                onPressed: _signOut,
-                icon: Icon(Icons.logout),
-                tooltip: 'Sign Out',
-              )
-            : null,
+        leading: IconButton(
+          onPressed: _signOut,
+          icon: Icon(Icons.logout),
+          tooltip: 'Sign Out',
+        ),
       ),
-      bottomNavigationBar: MediaQuery.of(context).size.width < 640
-          ? _buildNavigationBar()
-          : null,
+      bottomNavigationBar: _buildNavigationBar(),
     );
   }
 
   Widget _buildBody() {
-    return Row(
-      children: [
-        if (MediaQuery.of(context).size.width >= 640) _buildNavigationRail(),
-        Expanded(
-          child: Center(
-            child: Text('Signed in'),
-          ),
-        ),
-      ],
+    return Center(
+      child: Text('Signed in'),
     );
   }
 
@@ -93,63 +86,16 @@ class _HomePageState extends State<HomePage> {
           icon: Icon(Icons.settings),
           label: 'Settings',
         ),
-        NavigationDestination(
-          icon: Icon(Icons.add_alert),
-          label: 'Requests',
-        ),
-        NavigationDestination(
-          icon: Icon(Icons.build),
-          label: 'Control Panel',
-        ),
-      ],
-    );
-  }
-
-  Widget _buildNavigationRail() {
-    ColorScheme colorScheme = Theme.of(context).colorScheme;
-
-    return NavigationRail(
-      selectedIndex: _selectedTab,
-      onDestinationSelected: (int index) {
-        setState(() {
-          _selectedTab = index;
-        });
-      },
-      labelType: NavigationRailLabelType.selected,
-      trailing: Expanded(
-        child: Align(
-          alignment: Alignment.bottomCenter,
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 12.0),
-            child: IconButton(
-              onPressed: _signOut,
-              icon: Icon(Icons.logout),
-              tooltip: 'Sign Out',
-            ),
+        if (_isAdmin)
+          NavigationDestination(
+            icon: Icon(Icons.add_alert),
+            label: 'Requests',
           ),
-        ),
-      ),
-      destinations: [
-        NavigationRailDestination(
-          icon: Icon(Icons.timer),
-          label: Text('Time Tracker'),
-        ),
-        NavigationRailDestination(
-          icon: Icon(Icons.leaderboard),
-          label: Text('Leaderboard'),
-        ),
-        NavigationRailDestination(
-          icon: Icon(Icons.settings),
-          label: Text('Settings'),
-        ),
-        NavigationRailDestination(
-          icon: Icon(Icons.add_alert),
-          label: Text('Requests'),
-        ),
-        NavigationRailDestination(
-          icon: Icon(Icons.build),
-          label: Text('Control Panel'),
-        ),
+        if (_isAdmin)
+          NavigationDestination(
+            icon: Icon(Icons.build),
+            label: 'Control Panel',
+          ),
       ],
     );
   }

@@ -26,6 +26,11 @@ class Database {
     return false;
   }
 
+  static Future<bool> isUserAdmin(User user) async {
+    DocumentSnapshot userDocSnapshot = await _users.doc(user.uid).get();
+    return (userDocSnapshot.data() as Map<String, dynamic>)['is_admin'];
+  }
+
   static Future<Settings> getSettings() async {
     DocumentSnapshot settingsDoc = await _settings.doc('settings').get();
     return Settings.fromJson(settingsDoc.data() as Map<String, dynamic>);
