@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:rr_attendance/pages/control_panel_page.dart';
 import 'package:rr_attendance/pages/leaderboard_page.dart';
 import 'package:rr_attendance/pages/login_page.dart';
-import 'package:rr_attendance/pages/requests_page.dart';
+import 'package:rr_attendance/pages/stats_page.dart';
 import 'package:rr_attendance/pages/settings_page.dart';
 import 'package:rr_attendance/pages/time_tracker_page.dart';
 import 'package:rr_attendance/services/authentication.dart';
@@ -80,8 +80,8 @@ class _HomePageState extends State<HomePage> {
       children: [
         TimeTrackerPage(),
         if (_dbSettings.leaderboardEnabled) LeaderboardPage(),
+        StatsPage(),
         SettingsPage(),
-        if (_isAdmin) RequestsPage(),
         if (_isAdmin) ControlPanelPage(),
       ],
     );
@@ -111,14 +111,13 @@ class _HomePageState extends State<HomePage> {
             label: 'Leaderboard',
           ),
         NavigationDestination(
+          icon: Icon(Icons.insights),
+          label: 'Stats',
+        ),
+        NavigationDestination(
           icon: Icon(Icons.settings),
           label: 'Settings',
         ),
-        if (_isAdmin)
-          NavigationDestination(
-            icon: Icon(Icons.add_alert),
-            label: 'Requests',
-          ),
         if (_isAdmin)
           NavigationDestination(
             icon: Icon(Icons.build),
