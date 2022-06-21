@@ -20,21 +20,27 @@ class _ControlPanelPageState extends State<ControlPanelPage> {
     super.initState();
 
     Database.getNumUsers().then((numUsers) {
-      setState(() {
-        _numUsers = numUsers;
-      });
+      if (mounted) {
+        setState(() {
+          _numUsers = numUsers;
+        });
+      }
     });
 
     Database.getNumClockedIn().then((numClockedIn) {
-      setState(() {
-        _numClockedIn = numClockedIn;
-      });
+      if (mounted) {
+        setState(() {
+          _numClockedIn = numClockedIn;
+        });
+      }
     });
 
     Database.getTimeRequests().then((requests) {
-      setState(() {
-        _timeRequests = requests;
-      });
+      if (mounted) {
+        setState(() {
+          _timeRequests = requests;
+        });
+      }
     });
   }
 
