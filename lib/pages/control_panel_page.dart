@@ -13,17 +13,27 @@ class ControlPanelPage extends StatefulWidget {
 class _ControlPanelPageState extends State<ControlPanelPage> {
   int? _numUsers;
   int? _numClockedIn;
+  List<TimeRequest> _timeRequests = [];
 
   @override
   void initState() {
     super.initState();
 
     Database.getNumUsers().then((numUsers) {
-      Database.getNumClockedIn().then((numClockedIn) {
-        setState(() {
-          _numUsers = numUsers;
-          _numClockedIn = numClockedIn;
-        });
+      setState(() {
+        _numUsers = numUsers;
+      });
+    });
+
+    Database.getNumClockedIn().then((numClockedIn) {
+      setState(() {
+        _numClockedIn = numClockedIn;
+      });
+    });
+
+    Database.getTimeRequests().then((requests) {
+      setState(() {
+        _timeRequests = requests;
       });
     });
   }
@@ -50,12 +60,15 @@ class _ControlPanelPageState extends State<ControlPanelPage> {
         Expanded(
           child: ListView(
             children: [
-              RequestCard(),
-              RequestCard(),
-              RequestCard(),
-              RequestCard(),
-              RequestCard(),
-              RequestCard(),
+              for (TimeRequest request in _timeRequests)
+                RequestCard(
+                  request: request,
+                  removeRequestCallback: (TimeRequest request) {
+                    setState(() {
+                      _timeRequests.remove(request);
+                    });
+                  },
+                ),
             ],
           ),
         ),

@@ -51,6 +51,57 @@ class Database {
     }
     return total;
   }
+
+  static Future<List<TimeRequest>> getTimeRequests() async {
+    List<TimeRequest> requests = [];
+    QuerySnapshot requestsSnap = await _timeRequests.get();
+
+    for (QueryDocumentSnapshot requestDoc in requestsSnap.docs) {
+      Map<String, dynamic> requestJson =
+          requestDoc.data() as Map<String, dynamic>;
+
+      if (!requestJson.containsKey('prevHours')) {
+        num prevHours = await getHoursFromDate(
+            requestJson['user'], requestJson['changeDate'].toDate());
+        requestJson.putIfAbsent('prevHours', () => prevHours);
+      }
+
+      requests.add(TimeRequest.fromJson(requestJson));
+    }
+
+    return requests;
+  }
+
+  static Future<void> deleteTimeRequest(TimeRequest request) async {
+    QuerySnapshot querySnapshot = await _timeRequests
+        .where('user', isEqualTo: request.uid)
+        .where('changeDate', isEqualTo: Timestamp.fromDate(request.requestDate))
+        .where('newHours', isEqualTo: request.newHours)
+        .get();
+    await _timeRequests.doc(querySnapshot.docs[0].id).delete();
+  }
+
+  static Future<void> approveTimeRequest(TimeRequest request) async {
+    DocumentReference userDoc = _users.doc(request.uid);
+    CollectionReference timecardCollection = userDoc.collection('timecard');
+    DocumentReference dateDoc = timecardCollection.doc(
+        '${request.requestDate.year}-${request.requestDate.month}-${request.requestDate.day}');
+    dateDoc.update({'hours': request.newHours});
+    await deleteTimeRequest(request);
+  }
+
+  static Future<num> getHoursFromDate(String uid, DateTime date) async {
+    DocumentReference userDoc = _users.doc(uid);
+    CollectionReference timecardCollection = userDoc.collection('timecard');
+    DocumentReference inDateDoc =
+        timecardCollection.doc('${date.year}-${date.month}-${date.day}');
+    DocumentSnapshot inDateDocSnapshot = await inDateDoc.get();
+    num prevHours = 0;
+    if (inDateDocSnapshot.exists) {
+      prevHours = (inDateDocSnapshot.data() as Map<String, dynamic>)['hours'];
+    }
+    return prevHours;
+  }
 }
 
 class Settings {
@@ -60,4 +111,29 @@ class Settings {
   Settings.fromJson(Map<String, dynamic> json)
       : this.permissionCode = json['permission_code'],
         this.leaderboardEnabled = json['show_leaderboard'];
+}
+
+class TimeRequest {
+  final String uid;
+  final String userName;
+  final DateTime requestDate;
+  final num prevHours;
+  final num newHours;
+
+  TimeRequest.fromJson(Map<String, dynamic> json)
+      : this.uid = json['user'],
+        this.userName = json['name'],
+        this.requestDate = json['changeDate'].toDate(),
+        this.prevHours = json['prevHours'],
+        this.newHours = json['newHours'];
+
+  Map<String, dynamic> toJson() {
+    return {
+      'user': this.uid,
+      'name': this.userName,
+      'changeDate': this.requestDate,
+      'prevHours': this.prevHours,
+      'newHours': this.newHours,
+    };
+  }
 }
