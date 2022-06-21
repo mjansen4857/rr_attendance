@@ -26,9 +26,9 @@ class Database {
     return false;
   }
 
-  static Future<bool> isUserAdmin(User user) async {
+  static Future<UserInfo> getUserInfo(User user) async {
     DocumentSnapshot userDocSnapshot = await _users.doc(user.uid).get();
-    return (userDocSnapshot.data() as Map<String, dynamic>)['is_admin'];
+    return UserInfo.fromJson(userDocSnapshot.data() as Map<String, dynamic>);
   }
 
   static Future<Settings> getSettings() async {
@@ -102,6 +102,18 @@ class Database {
     }
     return prevHours;
   }
+
+  static Future<void> updateUserName(User user, String name) async {
+    await user.updateDisplayName(name);
+
+    DocumentReference userDoc = _users.doc(user.uid);
+    return userDoc.update({'name': name});
+  }
+
+  static Future<void> updateUserTeam(User user, int teamNumber) async {
+    DocumentReference userDoc = _users.doc(user.uid);
+    return userDoc.update({'team': teamNumber});
+  }
 }
 
 class Settings {
@@ -113,6 +125,21 @@ class Settings {
       : this.permissionCode = json['permission_code'],
         this.leaderboardEnabled = json['show_leaderboard'],
         this.statsEnabled = json['show_stats'];
+}
+
+class UserInfo {
+  final Timestamp? inTime;
+  final bool isAdmin;
+  final String name;
+  final int team;
+  final num totalHours;
+
+  UserInfo.fromJson(Map<String, dynamic> json)
+      : this.inTime = json['in_timestamp'],
+        this.isAdmin = json['is_admin'],
+        this.name = json['name'],
+        this.team = json['team'],
+        this.totalHours = json['total_hours'];
 }
 
 class TimeRequest {

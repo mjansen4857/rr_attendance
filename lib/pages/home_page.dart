@@ -37,11 +37,11 @@ class _HomePageState extends State<HomePage> {
           user = await _showSignin();
         }
 
-        bool admin = await Database.isUserAdmin(user!);
+        var userInfo = await Database.getUserInfo(user!);
 
         setState(() {
           _user = user;
-          _isAdmin = admin;
+          _isAdmin = userInfo.isAdmin;
         });
       });
     });
@@ -64,11 +64,6 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text('Attendance'),
         elevation: 1,
-        leading: IconButton(
-          onPressed: _signOut,
-          icon: Icon(Icons.logout),
-          tooltip: 'Sign Out',
-        ),
       ),
       bottomNavigationBar: _buildNavigationBar(),
     );
@@ -86,7 +81,10 @@ class _HomePageState extends State<HomePage> {
         TimeTrackerPage(),
         if (_dbSettings.leaderboardEnabled) LeaderboardPage(),
         if (_dbSettings.statsEnabled) StatsPage(),
-        SettingsPage(),
+        SettingsPage(
+          user: _user!,
+          onSignOut: _signOut,
+        ),
         if (_isAdmin) ControlPanelPage(),
       ],
     );
