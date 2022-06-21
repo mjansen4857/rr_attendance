@@ -107,10 +107,12 @@ class Database {
 class Settings {
   final String permissionCode;
   final bool leaderboardEnabled;
+  final bool statsEnabled;
 
   Settings.fromJson(Map<String, dynamic> json)
       : this.permissionCode = json['permission_code'],
-        this.leaderboardEnabled = json['show_leaderboard'];
+        this.leaderboardEnabled = json['show_leaderboard'],
+        this.statsEnabled = json['show_stats'];
 }
 
 class TimeRequest {

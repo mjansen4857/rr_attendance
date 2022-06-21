@@ -85,7 +85,7 @@ class _HomePageState extends State<HomePage> {
       children: [
         TimeTrackerPage(),
         if (_dbSettings.leaderboardEnabled) LeaderboardPage(),
-        StatsPage(),
+        if (_dbSettings.statsEnabled) StatsPage(),
         SettingsPage(),
         if (_isAdmin) ControlPanelPage(),
       ],
@@ -117,11 +117,12 @@ class _HomePageState extends State<HomePage> {
             label: 'Leaderboard',
             tooltip: '',
           ),
-        NavigationDestination(
-          icon: Icon(Icons.insights),
-          label: 'Stats',
-          tooltip: '',
-        ),
+        if (_dbSettings.statsEnabled)
+          NavigationDestination(
+            icon: Icon(Icons.insights),
+            label: 'Stats',
+            tooltip: '',
+          ),
         NavigationDestination(
           icon: Icon(Icons.settings),
           label: 'Settings',
