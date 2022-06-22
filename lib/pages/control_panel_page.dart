@@ -42,57 +42,63 @@ class _ControlPanelPageState extends State<ControlPanelPage> {
   Widget build(BuildContext context) {
     ColorScheme colorScheme = Theme.of(context).colorScheme;
 
-    return Column(
-      mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        _buildUserCards(),
-        SizedBox(height: 12),
-        Text(
-          'Time Change Requests',
-          style: TextStyle(fontSize: 20),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12.0),
-          child: Divider(),
-        ),
-        Expanded(
-          child: ListView(
-            children: [
-              for (TimeRequest request in _timeRequests)
-                RequestCard(
-                  request: request,
-                  removeRequestCallback: (TimeRequest request) {
-                    setState(() {
-                      _timeRequests.remove(request);
-                    });
-                  },
-                ),
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
-          child: ElevatedButton(
-            onPressed: () {},
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                'Reset All Hours',
-                style: TextStyle(fontSize: 18),
+    return Center(
+      child: Container(
+        constraints: BoxConstraints(maxWidth: 640),
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            _buildUserCards(),
+            SizedBox(height: 12),
+            Text(
+              'Time Change Requests',
+              style: TextStyle(fontSize: 20),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: Divider(),
+            ),
+            Expanded(
+              child: ListView(
+                children: [
+                  for (TimeRequest request in _timeRequests)
+                    RequestCard(
+                      request: request,
+                      removeRequestCallback: (TimeRequest request) {
+                        setState(() {
+                          _timeRequests.remove(request);
+                        });
+                      },
+                    ),
+                ],
               ),
             ),
-            style: ElevatedButton.styleFrom(
-              minimumSize: Size(double.infinity, 56),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16)),
-              primary: colorScheme.primaryContainer,
-              onPrimary: colorScheme.onPrimaryContainer,
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
+              child: ElevatedButton(
+                onPressed: () {},
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    'Reset All Hours',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: Size(double.infinity, 56),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
+                  primary: colorScheme.primaryContainer,
+                  onPrimary: colorScheme.onPrimaryContainer,
+                ),
+              ),
             ),
-          ),
+          ],
         ),
-      ],
+      ),
     );
   }
 

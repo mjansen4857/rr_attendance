@@ -40,49 +40,55 @@ class _SettingsPageState extends State<SettingsPage> {
         label: Text('Sign Out'),
         icon: Icon(Icons.logout),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          children: [
-            Row(
-              mainAxisSize: MainAxisSize.max,
+      body: Center(
+        child: Container(
+          constraints: BoxConstraints(maxWidth: 640),
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
               children: [
-                Expanded(
-                  child: TextField(
-                    onSubmitted: (val) {
-                      if (val.length > 0) {
-                        FocusScopeNode currentScope = FocusScope.of(context);
-                        if (!currentScope.hasPrimaryFocus &&
-                            currentScope.hasFocus) {
-                          FocusManager.instance.primaryFocus!.unfocus();
-                        }
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        onSubmitted: (val) {
+                          if (val.length > 0) {
+                            FocusScopeNode currentScope =
+                                FocusScope.of(context);
+                            if (!currentScope.hasPrimaryFocus &&
+                                currentScope.hasFocus) {
+                              FocusManager.instance.primaryFocus!.unfocus();
+                            }
 
-                        Database.updateUserName(widget.user, val);
-                      }
-                    },
-                    controller: _nameController,
-                    style: TextStyle(fontSize: 14),
-                    decoration: InputDecoration(
-                      contentPadding: EdgeInsets.fromLTRB(8, 4, 8, 4),
-                      labelText: 'Full Name',
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8)),
+                            Database.updateUserName(widget.user, val);
+                          }
+                        },
+                        controller: _nameController,
+                        style: TextStyle(fontSize: 14),
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.fromLTRB(8, 4, 8, 4),
+                          labelText: 'Full Name',
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8)),
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
+                ),
+                SizedBox(
+                  height: 12,
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildTeamDropdown(),
+                    ),
+                  ],
                 ),
               ],
             ),
-            SizedBox(
-              height: 12,
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildTeamDropdown(),
-                ),
-              ],
-            ),
-          ],
+          ),
         ),
       ),
     );

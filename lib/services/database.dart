@@ -148,6 +148,20 @@ class Database {
       await addHoursToUserDay(user, hours, inTime.toDate());
     }
   }
+
+  static Future<List<TimeCard>> getTimecards(User user) async {
+    DocumentReference userDoc = _users.doc(user.uid);
+    CollectionReference timecardCollection = userDoc.collection('timecard');
+    QuerySnapshot timecardDocs = await timecardCollection.get();
+
+    List<TimeCard> timeCards = [];
+    for (QueryDocumentSnapshot doc in timecardDocs.docs) {
+      timeCards
+          .add(TimeCard(doc.id, (doc.data() as Map<String, dynamic>)['hours']));
+    }
+
+    return timeCards;
+  }
 }
 
 class Settings {
@@ -199,4 +213,11 @@ class TimeRequest {
       'newHours': this.newHours,
     };
   }
+}
+
+class TimeCard {
+  final String docId;
+  final num hours;
+
+  const TimeCard(this.docId, this.hours);
 }
