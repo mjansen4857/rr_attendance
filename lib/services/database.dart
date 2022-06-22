@@ -114,6 +114,40 @@ class Database {
     DocumentReference userDoc = _users.doc(user.uid);
     return userDoc.update({'team': teamNumber});
   }
+
+  static Future<void> addHoursToUserDay(
+      User user, num hours, DateTime inTime) async {
+    DocumentReference userDoc = _users.doc(user.uid);
+    CollectionReference timecardCollection = userDoc.collection('timecard');
+    DocumentReference inDateDoc =
+        timecardCollection.doc('${inTime.year}-${inTime.month}-${inTime.day}');
+    DocumentSnapshot inDateDocSnapshot = await inDateDoc.get();
+    double prevHours = 0;
+    if (inDateDocSnapshot.exists) {
+      prevHours = (inDateDocSnapshot.data() as Map<String, dynamic>)['hours'];
+      return inDateDoc.update({'hours': prevHours + hours});
+    }
+    return inDateDoc.set({'hours': hours});
+  }
+
+  static Future<void> clockInUser(User user) async {
+    DocumentReference userDoc = _users.doc(user.uid);
+    await addHoursToUserDay(user, 0, DateTime.now());
+    return userDoc.update({'in_timestamp': Timestamp.now()});
+  }
+
+  static Future<void> clockOutUser(User user) async {
+    Timestamp? inTime = (await getUserInfo(user)).inTime;
+    if (inTime != null) {
+      int dSeconds = Timestamp.now().seconds - inTime.seconds;
+      DocumentReference userDoc = _users.doc(user.uid);
+      double hours = dSeconds / 60.0 / 60.0;
+      await userDoc.update({
+        'in_timestamp': null,
+      });
+      await addHoursToUserDay(user, hours, inTime.toDate());
+    }
+  }
 }
 
 class Settings {

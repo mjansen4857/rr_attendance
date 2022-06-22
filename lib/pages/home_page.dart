@@ -79,7 +79,9 @@ class _HomePageState extends State<HomePage> {
         });
       },
       children: [
-        TimeTrackerPage(),
+        TimeTrackerPage(
+          user: _user!,
+        ),
         if (_dbSettings.leaderboardEnabled) LeaderboardPage(),
         if (_dbSettings.statsEnabled) StatsPage(),
         SettingsPage(
