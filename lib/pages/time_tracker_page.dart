@@ -1,11 +1,10 @@
 import 'dart:async';
-import 'dart:collection';
-import 'dart:html';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:rr_attendance/services/database.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -159,10 +158,15 @@ class _TimeTrackerPageState extends State<TimeTrackerPage>
                         child: ListTile(
                           title: Text(
                               '${_selectedTimecard!.hours.toStringAsFixed(2)} hours'),
-                          trailing: IconButton(
-                            icon: Icon(Icons.error_outline),
-                            onPressed: () {},
-                          ),
+                          trailing: _selectedTimecard!.requestPending
+                              ? Text(
+                                  'Request Pending',
+                                  style: TextStyle(color: colorScheme.error),
+                                )
+                              : IconButton(
+                                  icon: Icon(Icons.error_outline),
+                                  onPressed: _showTimeRequestDialog,
+                                ),
                         ),
                       ),
               ),
@@ -208,7 +212,7 @@ class _TimeTrackerPageState extends State<TimeTrackerPage>
           DateTime now = DateTime.now();
           String key = '${now.year}-${now.month}-${now.day}';
 
-          _timeCards.putIfAbsent(key, () => TimeCard(key, 0));
+          _timeCards.putIfAbsent(key, () => TimeCard(key, 0, false));
           setState(() {
             _clockInTime = DateTime.now();
             _startTimer();
@@ -233,7 +237,9 @@ class _TimeTrackerPageState extends State<TimeTrackerPage>
           DateTime now = DateTime.now();
           String key = '${now.year}-${now.month}-${now.day}';
           _timeCards.update(
-              key, ((value) => TimeCard(key, value.hours + hours)));
+              key,
+              ((value) =>
+                  TimeCard(key, value.hours + hours, value.requestPending)));
 
           setState(() {
             _clockInTime = null;
@@ -247,6 +253,103 @@ class _TimeTrackerPageState extends State<TimeTrackerPage>
           Database.clockOutUser(widget.user);
         },
       );
+    }
+  }
+
+  void _showTimeRequestDialog() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          TextEditingController controller = TextEditingController();
+
+          return AlertDialog(
+            title: Text('Submit Time Request'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  onSubmitted: (val) {
+                    if (val.length > 0) {
+                      Navigator.of(context).pop();
+                      _submitTimeRequest(num.parse(controller.text));
+                    }
+                  },
+                  autofocus: true,
+                  keyboardType: TextInputType.numberWithOptions(
+                      signed: false, decimal: true),
+                  keyboardAppearance: Brightness.dark,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'(\d*\.?\d*)'))
+                  ],
+                  controller: controller,
+                  style: TextStyle(fontSize: 14),
+                  decoration: InputDecoration(
+                    contentPadding: EdgeInsets.fromLTRB(8, 4, 8, 4),
+                    labelText: 'Requested Hours',
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                  ),
+                )
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  if (controller.text.length > 0) {
+                    Navigator.of(context).pop();
+                    _submitTimeRequest(num.parse(controller.text));
+                  }
+                },
+                child: Text('Submit'),
+              ),
+            ],
+          );
+        });
+  }
+
+  void _submitTimeRequest(num hours) async {
+    if (_selectedTimecard != null) {
+      List<String> dateVals = _selectedTimecard!.docId.split('-');
+      DateTime date = DateTime(int.parse(dateVals[0]), int.parse(dateVals[1]),
+          int.parse(dateVals[2]));
+
+      TimeRequest request = TimeRequest(
+        uid: widget.user.uid,
+        userName: widget.user.displayName ?? 'NULL',
+        requestDate: date,
+        prevHours: _selectedTimecard!.hours,
+        newHours: hours,
+      );
+
+      bool submitted = await Database.submitTimeRequest(request);
+
+      _timeCards.update(_selectedTimecard!.docId,
+          (value) => TimeCard(value.docId, hours, true));
+
+      setState(() {
+        _timeCards = _timeCards;
+        _selectedTimecard = _getTimecardForDay(_selectedDay);
+      });
+
+      ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+      if (submitted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(
+            'Time change request submitted.',
+            style: TextStyle(color: colorScheme.onSurfaceVariant),
+          ),
+          backgroundColor: colorScheme.surfaceVariant,
+        ));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(
+            'You already have a pending time request for this day.',
+            style: TextStyle(color: colorScheme.error),
+          ),
+          backgroundColor: colorScheme.surfaceVariant,
+        ));
+      }
     }
   }
 

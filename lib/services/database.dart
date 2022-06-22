@@ -153,14 +153,41 @@ class Database {
     DocumentReference userDoc = _users.doc(user.uid);
     CollectionReference timecardCollection = userDoc.collection('timecard');
     QuerySnapshot timecardDocs = await timecardCollection.get();
+    QuerySnapshot requestDocs =
+        await _timeRequests.where('user', isEqualTo: user.uid).get();
+
+    List<Timestamp> requestTimes = [];
+    for (QueryDocumentSnapshot doc in requestDocs.docs) {
+      requestTimes.add((doc.data() as Map<String, dynamic>)['changeDate']);
+    }
 
     List<TimeCard> timeCards = [];
     for (QueryDocumentSnapshot doc in timecardDocs.docs) {
-      timeCards
-          .add(TimeCard(doc.id, (doc.data() as Map<String, dynamic>)['hours']));
+      List<String> vals = doc.id.split('-');
+      DateTime date =
+          DateTime(int.parse(vals[0]), int.parse(vals[1]), int.parse(vals[2]));
+
+      timeCards.add(TimeCard(
+          doc.id,
+          (doc.data() as Map<String, dynamic>)['hours'],
+          requestTimes.contains(Timestamp.fromDate(date))));
     }
 
     return timeCards;
+  }
+
+  static Future<bool> submitTimeRequest(TimeRequest request) async {
+    QuerySnapshot query = await _timeRequests
+        .where('user', isEqualTo: request.uid)
+        .where('changeDate', isEqualTo: Timestamp.fromDate(request.requestDate))
+        .get();
+
+    if (query.size != 0) {
+      return false;
+    } else {
+      await _timeRequests.add(request.toJson());
+      return true;
+    }
   }
 }
 
@@ -199,6 +226,13 @@ class TimeRequest {
   final num prevHours;
   final num newHours;
 
+  const TimeRequest(
+      {required this.uid,
+      required this.userName,
+      required this.requestDate,
+      required this.prevHours,
+      required this.newHours});
+
   TimeRequest.fromJson(Map<String, dynamic> json)
       : this.uid = json['user'],
         this.userName = json['name'],
@@ -220,6 +254,7 @@ class TimeRequest {
 class TimeCard {
   final String docId;
   final num hours;
+  final bool requestPending;
 
-  const TimeCard(this.docId, this.hours);
+  const TimeCard(this.docId, this.hours, this.requestPending);
 }
