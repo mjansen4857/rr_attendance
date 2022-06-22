@@ -72,6 +72,7 @@ class _HomePageState extends State<HomePage> {
   Widget _buildBody() {
     return PageView(
       controller: _pageController,
+      physics: NeverScrollableScrollPhysics(),
       onPageChanged: (int index) {
         setState(() {
           _selectedTab = index;
@@ -96,11 +97,12 @@ class _HomePageState extends State<HomePage> {
       onDestinationSelected: (int index) {
         setState(() {
           _selectedTab = index;
-          _pageController.animateToPage(
-            _selectedTab,
-            duration: Duration(milliseconds: 200),
-            curve: Curves.easeInOut,
-          );
+          _pageController.jumpToPage(_selectedTab);
+          // _pageController.animateToPage(
+          //   _selectedTab,
+          //   duration: Duration(milliseconds: 200),
+          //   curve: Curves.easeInOut,
+          // );
         });
       },
       destinations: [

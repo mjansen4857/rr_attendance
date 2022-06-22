@@ -25,12 +25,10 @@ class _SettingsPageState extends State<SettingsPage> {
     super.initState();
 
     Database.getUserInfo(widget.user).then((userInfo) {
-      if (mounted) {
-        setState(() {
-          _nameController = _getController(userInfo.name);
-          _teamNumber = userInfo.team;
-        });
-      }
+      setState(() {
+        _nameController = _getController(userInfo.name);
+        _teamNumber = userInfo.team;
+      });
     });
   }
 
