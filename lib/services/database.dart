@@ -168,11 +168,13 @@ class Settings {
   final String permissionCode;
   final bool leaderboardEnabled;
   final bool statsEnabled;
+  final String resetPassword;
 
   Settings.fromJson(Map<String, dynamic> json)
       : this.permissionCode = json['permission_code'],
         this.leaderboardEnabled = json['show_leaderboard'],
-        this.statsEnabled = json['show_stats'];
+        this.statsEnabled = json['show_stats'],
+        this.resetPassword = json['reset_password'];
 }
 
 class UserInfo {

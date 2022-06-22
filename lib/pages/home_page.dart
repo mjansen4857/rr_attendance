@@ -82,8 +82,8 @@ class _HomePageState extends State<HomePage> {
         TimeTrackerPage(
           user: _user!,
         ),
-        if (_dbSettings.leaderboardEnabled) LeaderboardPage(),
-        if (_dbSettings.statsEnabled) StatsPage(),
+        if (_dbSettings.leaderboardEnabled || _isAdmin) LeaderboardPage(),
+        if (_dbSettings.statsEnabled || _isAdmin) StatsPage(),
         SettingsPage(
           user: _user!,
           onSignOut: _signOut,
@@ -113,13 +113,13 @@ class _HomePageState extends State<HomePage> {
           label: 'Time Tracker',
           tooltip: '',
         ),
-        if (_dbSettings.leaderboardEnabled)
+        if (_dbSettings.leaderboardEnabled || _isAdmin)
           NavigationDestination(
             icon: Icon(Icons.leaderboard),
             label: 'Leaderboard',
             tooltip: '',
           ),
-        if (_dbSettings.statsEnabled)
+        if (_dbSettings.statsEnabled || _isAdmin)
           NavigationDestination(
             icon: Icon(Icons.insights),
             label: 'Stats',
