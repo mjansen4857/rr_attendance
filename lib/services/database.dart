@@ -189,6 +189,19 @@ class Database {
       return true;
     }
   }
+
+  static Future<List<UserInfo>> getAllLeaderboardDocs() async {
+    QuerySnapshot querySnapshot = await _users
+        .where('total_hours', isGreaterThanOrEqualTo: 0.5)
+        .orderBy('total_hours', descending: true)
+        .get();
+
+    List<UserInfo> entries = [];
+    for (QueryDocumentSnapshot doc in querySnapshot.docs) {
+      entries.add(UserInfo.fromJson(doc.data() as Map<String, dynamic>));
+    }
+    return entries;
+  }
 }
 
 class Settings {

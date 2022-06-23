@@ -82,7 +82,10 @@ class _HomePageState extends State<HomePage> {
         TimeTrackerPage(
           user: _user!,
         ),
-        if (_dbSettings.leaderboardEnabled || _isAdmin) LeaderboardPage(),
+        if (_dbSettings.leaderboardEnabled || _isAdmin)
+          LeaderboardPage(
+            user: _user!,
+          ),
         if (_dbSettings.statsEnabled || _isAdmin) StatsPage(),
         SettingsPage(
           user: _user!,
