@@ -202,6 +202,17 @@ class Database {
     }
     return entries;
   }
+
+  static Future<num> getTotalHours() async {
+    List<UserInfo> entries = await getAllLeaderboardDocs();
+    num total = 0;
+
+    for (UserInfo entry in entries) {
+      total += entry.totalHours;
+    }
+
+    return total;
+  }
 }
 
 class Settings {
