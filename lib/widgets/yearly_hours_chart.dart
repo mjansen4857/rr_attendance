@@ -1,15 +1,17 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
-class TotalHoursChart extends StatefulWidget {
-  TotalHoursChart({super.key});
+class YearlyHoursChart extends StatefulWidget {
+  final num currentHours;
+
+  const YearlyHoursChart({required this.currentHours, super.key});
 
   @override
-  State<TotalHoursChart> createState() => _TotalHoursChartState();
+  _YearlyHoursChartState createState() => _YearlyHoursChartState();
 }
 
-class _TotalHoursChartState extends State<TotalHoursChart> {
-  List<Color> gradientColors = [
+class _YearlyHoursChartState extends State<YearlyHoursChart> {
+  List<Color> _gradientColors = [
     Colors.indigo,
     Colors.deepPurple,
   ];
@@ -17,17 +19,17 @@ class _TotalHoursChartState extends State<TotalHoursChart> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: AspectRatio(
-          aspectRatio: 1.7,
-          child: LineChart(_mainData()),
+      child: Container(
+        height: 280,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          child: LineChart(_buildData()),
         ),
       ),
     );
   }
 
-  Widget _bottomTitleWidgets(double value, TitleMeta meta) {
+  Widget bottomTitleWidgets(double value, TitleMeta meta) {
     const style = TextStyle(
       color: Color(0xff68737d),
       fontWeight: FontWeight.bold,
@@ -35,14 +37,11 @@ class _TotalHoursChartState extends State<TotalHoursChart> {
     );
     Widget text;
     switch (value.toInt()) {
-      case 2:
-        text = const Text('MAR', style: style);
+      case 0:
+        text = const Text('2022', style: style);
         break;
-      case 5:
-        text = const Text('JUN', style: style);
-        break;
-      case 8:
-        text = const Text('SEP', style: style);
+      case 1:
+        text = const Text('2023', style: style);
         break;
       default:
         text = const Text('', style: style);
@@ -56,7 +55,7 @@ class _TotalHoursChartState extends State<TotalHoursChart> {
     );
   }
 
-  Widget _leftTitleWidgets(double value, TitleMeta meta) {
+  Widget leftTitleWidgets(double value, TitleMeta meta) {
     const style = TextStyle(
       color: Color(0xff67727d),
       fontWeight: FontWeight.bold,
@@ -64,14 +63,14 @@ class _TotalHoursChartState extends State<TotalHoursChart> {
     );
     String text;
     switch (value.toInt()) {
-      case 1:
-        text = '10K';
+      case 2:
+        text = '2k';
         break;
-      case 3:
-        text = '30k';
+      case 4:
+        text = '4k';
         break;
-      case 5:
-        text = '50k';
+      case 6:
+        text = '6k';
         break;
       default:
         return Container();
@@ -80,12 +79,13 @@ class _TotalHoursChartState extends State<TotalHoursChart> {
     return Text(text, style: style, textAlign: TextAlign.left);
   }
 
-  LineChartData _mainData() {
+  LineChartData _buildData() {
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+
     return LineChartData(
       gridData: FlGridData(
         show: true,
         drawVerticalLine: true,
-        horizontalInterval: 1,
         verticalInterval: 1,
         getDrawingHorizontalLine: (value) {
           return FlLine(
@@ -100,12 +100,34 @@ class _TotalHoursChartState extends State<TotalHoursChart> {
           );
         },
       ),
+      lineTouchData: LineTouchData(
+        touchTooltipData: LineTouchTooltipData(
+            tooltipBgColor: colorScheme.surfaceVariant,
+            getTooltipItems: (List<LineBarSpot> spots) {
+              return [
+                for (LineBarSpot spot in spots)
+                  LineTooltipItem('${(spot.y * 1000).round()}',
+                      TextStyle(color: colorScheme.onSurfaceVariant)),
+              ];
+            }),
+      ),
       titlesData: FlTitlesData(
         show: true,
         rightTitles: AxisTitles(
           sideTitles: SideTitles(showTitles: false),
         ),
         topTitles: AxisTitles(
+          axisNameWidget: Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: Text(
+              'Hours Per Season',
+              style: TextStyle(
+                fontSize: 18,
+                color: Color(0xff68737d),
+              ),
+            ),
+          ),
+          axisNameSize: 36,
           sideTitles: SideTitles(showTitles: false),
         ),
         bottomTitles: AxisTitles(
@@ -113,14 +135,14 @@ class _TotalHoursChartState extends State<TotalHoursChart> {
             showTitles: true,
             reservedSize: 30,
             interval: 1,
-            getTitlesWidget: _bottomTitleWidgets,
+            getTitlesWidget: bottomTitleWidgets,
           ),
         ),
         leftTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
             interval: 1,
-            getTitlesWidget: _leftTitleWidgets,
+            getTitlesWidget: leftTitleWidgets,
             reservedSize: 42,
           ),
         ),
@@ -129,23 +151,18 @@ class _TotalHoursChartState extends State<TotalHoursChart> {
           show: true,
           border: Border.all(color: const Color(0xff37434d), width: 1)),
       minX: 0,
-      maxX: 11,
+      maxX: 1,
       minY: 0,
-      maxY: 6,
+      maxY: 8,
       lineBarsData: [
         LineChartBarData(
-          spots: const [
-            FlSpot(0, 3),
-            FlSpot(2.6, 2),
-            FlSpot(4.9, 5),
-            FlSpot(6.8, 3.1),
-            FlSpot(8, 4),
-            FlSpot(9.5, 3),
-            FlSpot(11, 4),
+          spots: [
+            FlSpot(0, 6.219),
+            FlSpot(1, widget.currentHours / 1000),
           ],
           isCurved: true,
           gradient: LinearGradient(
-            colors: gradientColors,
+            colors: _gradientColors,
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
@@ -157,7 +174,7 @@ class _TotalHoursChartState extends State<TotalHoursChart> {
           belowBarData: BarAreaData(
             show: true,
             gradient: LinearGradient(
-              colors: gradientColors
+              colors: _gradientColors
                   .map((color) => color.withOpacity(0.3))
                   .toList(),
               begin: Alignment.centerLeft,

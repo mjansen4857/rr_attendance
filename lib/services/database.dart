@@ -203,15 +203,14 @@ class Database {
     return entries;
   }
 
-  static Future<num> getTotalHours() async {
-    List<UserInfo> entries = await getAllLeaderboardDocs();
-    num total = 0;
+  static Future<List<UserInfo>> getAllUserDocs() async {
+    QuerySnapshot querySnapshot = await _users.get();
 
-    for (UserInfo entry in entries) {
-      total += entry.totalHours;
+    List<UserInfo> entries = [];
+    for (QueryDocumentSnapshot doc in querySnapshot.docs) {
+      entries.add(UserInfo.fromJson(doc.data() as Map<String, dynamic>));
     }
-
-    return total;
+    return entries;
   }
 }
 
