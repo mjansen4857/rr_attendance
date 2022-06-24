@@ -8,6 +8,7 @@ import 'package:rr_attendance/pages/settings_page.dart';
 import 'package:rr_attendance/pages/time_tracker_page.dart';
 import 'package:rr_attendance/services/authentication.dart';
 import 'package:rr_attendance/services/database.dart';
+import 'package:rr_attendance/widgets/user_update_dialog.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key? key}) : super(key: key);
@@ -154,7 +155,20 @@ class _HomePageState extends State<HomePage> {
           reverseTransitionDuration: Duration.zero,
         ));
 
-    return await Authentication.getCurrentUser();
+    User? user = await Authentication.getCurrentUser();
+
+    if (newUser) {
+      showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) {
+            return UserUpdateDialog(
+              user: user!,
+            );
+          });
+    }
+
+    return user;
   }
 
   void _signOut() async {

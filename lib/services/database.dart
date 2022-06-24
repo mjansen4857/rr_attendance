@@ -9,7 +9,8 @@ class Database {
   static final CollectionReference _settings =
       _firestore.collection('settings');
 
-  static Future<bool> addUserIfNotExists(User user, int teamNumber) async {
+  static Future<bool> addUserIfNotExists(User user,
+      {int teamNumber = 3015}) async {
     DocumentReference userDoc = _users.doc(user.uid);
     DocumentSnapshot userSnap = await userDoc.get();
 

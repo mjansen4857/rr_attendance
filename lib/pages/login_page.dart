@@ -21,7 +21,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   late AnimationController _scaleController;
   late Animation<double> _scaleAnimation;
-  int? _teamNumber;
   String? _permissionCode;
   String _errorMessage = '';
   bool _isLoading = false;
@@ -63,8 +62,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                       children: [
                         _buildLogo(),
                         SizedBox(height: 48),
-                        _buildTeamDropdown(),
-                        SizedBox(height: 12),
                         _buildPermissionInput(),
                         SizedBox(height: 48),
                         _buildGoogleSignIn(),
@@ -88,45 +85,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       width: 200,
       height: 200,
       child: Image.asset('images/rr_logo.png'),
-    );
-  }
-
-  Widget _buildTeamDropdown() {
-    ColorScheme colorScheme = Theme.of(context).colorScheme;
-
-    return ButtonTheme(
-      alignedDropdown: true,
-      child: DropdownButtonFormField<int>(
-        dropdownColor: colorScheme.surfaceVariant,
-        style: TextStyle(fontSize: 14, color: colorScheme.onSurface),
-        borderRadius: BorderRadius.circular(8),
-        isExpanded: true,
-        value: _teamNumber,
-        icon: Icon(Icons.arrow_drop_down),
-        validator: (value) => value == null ? 'Team number is required' : null,
-        decoration: InputDecoration(
-          contentPadding: const EdgeInsets.all(8),
-          label: Text('Team Number'),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-        items: [
-          DropdownMenuItem<int>(
-            value: 3015,
-            child: Text('3015'),
-          ),
-          DropdownMenuItem<int>(
-            value: 2716,
-            child: Text('2716'),
-          ),
-        ],
-        onChanged: (int? value) {
-          setState(() {
-            _teamNumber = value;
-          });
-        },
-      ),
     );
   }
 
@@ -250,8 +208,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               _isLoading = false;
             });
           } else {
-            bool newUser =
-                await Database.addUserIfNotExists(user, _teamNumber!);
+            bool newUser = await Database.addUserIfNotExists(user);
             print('Signed in user: ${user.uid}');
 
             Navigator.of(context).pop(newUser);
