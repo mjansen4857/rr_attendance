@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:rr_attendance/services/database.dart';
 import 'package:rr_attendance/widgets/control_panel_card.dart';
@@ -18,6 +19,8 @@ class _ControlPanelPageState extends State<ControlPanelPage> {
   @override
   void initState() {
     super.initState();
+
+    FirebaseAnalytics.instance.setCurrentScreen(screenName: 'control_panel');
 
     Database.getNumUsers().then((numUsers) {
       setState(() {

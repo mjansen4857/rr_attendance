@@ -1,3 +1,5 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:rr_attendance/services/database.dart';
 import 'package:rr_attendance/widgets/hours_pie_chart.dart';
@@ -16,10 +18,13 @@ class _StatsPageState extends State<StatsPage> {
   int _numUnqual = 0;
   int _numQual = 0;
   int _numAllIn = 0;
+  List<FlSpot> _prevYears = [];
 
   @override
   void initState() {
     super.initState();
+
+    FirebaseAnalytics.instance.setCurrentScreen(screenName: 'stats');
 
     Database.getAllUserDocs().then((value) {
       num sum = 0;
@@ -47,6 +52,17 @@ class _StatsPageState extends State<StatsPage> {
         _numUnqual = unqual;
         _numQual = qual;
         _numAllIn = allIn;
+      });
+    });
+
+    Database.getPrevYearTotals().then((value) {
+      value.forEach((key, value) {
+        _prevYears.add(FlSpot(key.toDouble(), value.roundToDouble()));
+      });
+      _prevYears.sort(((a, b) => a.x.compareTo(b.x)));
+
+      setState(() {
+        _prevYears = _prevYears;
       });
     });
   }
@@ -97,7 +113,11 @@ class _StatsPageState extends State<StatsPage> {
               ),
               SizedBox(height: 8),
               YearlyHoursChart(
-                currentHours: _totalHours,
+                yearlyHours: [
+                  ..._prevYears,
+                  if (_prevYears.length > 0)
+                    FlSpot(_prevYears.last.x + 1, _totalHours.roundToDouble()),
+                ],
               ),
             ],
           ),

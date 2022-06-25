@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:rr_attendance/services/authentication.dart';
@@ -13,8 +14,10 @@ class LoginPage extends StatefulWidget {
 }
 
 enum SigninMethod {
-  Google,
-  Apple,
+  Google("Google");
+
+  final String str;
+  const SigninMethod(this.str);
 }
 
 class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
@@ -28,6 +31,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+
+    FirebaseAnalytics.instance.setCurrentScreen(screenName: 'login');
 
     _scaleController =
         AnimationController(vsync: this, duration: Duration(milliseconds: 500));
@@ -210,6 +215,14 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
           } else {
             bool newUser = await Database.addUserIfNotExists(user);
             print('Signed in user: ${user.uid}');
+
+            if (newUser) {
+              FirebaseAnalytics.instance
+                  .logSignUp(signUpMethod: signinMethod.str);
+            } else {
+              FirebaseAnalytics.instance
+                  .logLogin(loginMethod: signinMethod.str);
+            }
 
             Navigator.of(context).pop(newUser);
           }

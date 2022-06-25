@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class Database {
@@ -8,6 +9,8 @@ class Database {
       _firestore.collection('timeRequests');
   static final CollectionReference _settings =
       _firestore.collection('settings');
+  static final CollectionReference _yearlyHours =
+      _firestore.collection('yearlyHours');
 
   static Future<bool> addUserIfNotExists(User user,
       {int teamNumber = 3015}) async {
@@ -132,12 +135,16 @@ class Database {
   }
 
   static Future<void> clockInUser(User user) async {
+    FirebaseAnalytics.instance.logEvent(name: 'clock_in');
+
     DocumentReference userDoc = _users.doc(user.uid);
     await addHoursToUserDay(user, 0, DateTime.now());
     return userDoc.update({'in_timestamp': Timestamp.now()});
   }
 
   static Future<void> clockOutUser(User user) async {
+    FirebaseAnalytics.instance.logEvent(name: 'clock_out');
+
     Timestamp? inTime = (await getUserInfo(user)).inTime;
     if (inTime != null) {
       int dSeconds = Timestamp.now().seconds - inTime.seconds;
@@ -178,6 +185,8 @@ class Database {
   }
 
   static Future<bool> submitTimeRequest(TimeRequest request) async {
+    FirebaseAnalytics.instance.logEvent(name: 'submit_request');
+
     QuerySnapshot query = await _timeRequests
         .where('user', isEqualTo: request.uid)
         .where('changeDate', isEqualTo: Timestamp.fromDate(request.requestDate))
@@ -212,6 +221,18 @@ class Database {
       entries.add(UserInfo.fromJson(doc.data() as Map<String, dynamic>));
     }
     return entries;
+  }
+
+  static Future<Map<int, num>> getPrevYearTotals() async {
+    QuerySnapshot querySnapshot = await _yearlyHours.get();
+
+    Map<int, num> prevYears = {};
+    for (QueryDocumentSnapshot doc in querySnapshot.docs) {
+      prevYears.putIfAbsent(int.parse(doc.id),
+          () => (doc.data() as Map<String, dynamic>)['hours']);
+    }
+
+    return prevYears;
   }
 }
 

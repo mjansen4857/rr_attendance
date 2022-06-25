@@ -1,20 +1,14 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
-class YearlyHoursChart extends StatefulWidget {
-  final num currentHours;
-
-  const YearlyHoursChart({required this.currentHours, super.key});
-
-  @override
-  _YearlyHoursChartState createState() => _YearlyHoursChartState();
-}
-
-class _YearlyHoursChartState extends State<YearlyHoursChart> {
-  List<Color> _gradientColors = [
+class YearlyHoursChart extends StatelessWidget {
+  final List<FlSpot> yearlyHours;
+  final List<Color> _gradientColors = const [
     Colors.indigo,
     Colors.deepPurple,
   ];
+
+  const YearlyHoursChart({required this.yearlyHours, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -23,39 +17,39 @@ class _YearlyHoursChartState extends State<YearlyHoursChart> {
         height: 280,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          child: LineChart(_buildData()),
+          child: this.yearlyHours.length == 0
+              ? Center(
+                  child: SizedBox(
+                    width: 100,
+                    height: 100,
+                    child: CircularProgressIndicator(),
+                  ),
+                )
+              : LineChart(_buildData(context)),
         ),
       ),
     );
   }
 
-  Widget bottomTitleWidgets(double value, TitleMeta meta) {
-    const style = TextStyle(
-      color: Color(0xff68737d),
-      fontWeight: FontWeight.bold,
-      fontSize: 16,
-    );
-    Widget text;
-    switch (value.toInt()) {
-      case 0:
-        text = const Text('2022', style: style);
-        break;
-      case 1:
-        text = const Text('2023', style: style);
-        break;
-      default:
-        text = const Text('', style: style);
-        break;
-    }
-
+  Widget _bottomTitleWidgets(double value, TitleMeta meta) {
     return SideTitleWidget(
       axisSide: meta.axisSide,
       space: 8.0,
-      child: text,
+      child: Text(
+        this
+            .yearlyHours[(value - this.yearlyHours.first.x).toInt()]
+            .x
+            .toString(),
+        style: const TextStyle(
+          color: Color(0xff68737d),
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
+        ),
+      ),
     );
   }
 
-  Widget leftTitleWidgets(double value, TitleMeta meta) {
+  Widget _leftTitleWidgets(double value, TitleMeta meta) {
     const style = TextStyle(
       color: Color(0xff67727d),
       fontWeight: FontWeight.bold,
@@ -63,14 +57,17 @@ class _YearlyHoursChartState extends State<YearlyHoursChart> {
     );
     String text;
     switch (value.toInt()) {
-      case 2:
+      case 2000:
         text = '2k';
         break;
-      case 4:
+      case 4000:
         text = '4k';
         break;
-      case 6:
+      case 6000:
         text = '6k';
+        break;
+      case 8000:
+        text = '8k';
         break;
       default:
         return Container();
@@ -79,7 +76,7 @@ class _YearlyHoursChartState extends State<YearlyHoursChart> {
     return Text(text, style: style, textAlign: TextAlign.left);
   }
 
-  LineChartData _buildData() {
+  LineChartData _buildData(BuildContext context) {
     ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return LineChartData(
@@ -87,6 +84,7 @@ class _YearlyHoursChartState extends State<YearlyHoursChart> {
         show: true,
         drawVerticalLine: true,
         verticalInterval: 1,
+        horizontalInterval: 2000,
         getDrawingHorizontalLine: (value) {
           return FlLine(
             color: const Color(0xff37434d),
@@ -106,7 +104,7 @@ class _YearlyHoursChartState extends State<YearlyHoursChart> {
             getTooltipItems: (List<LineBarSpot> spots) {
               return [
                 for (LineBarSpot spot in spots)
-                  LineTooltipItem('${(spot.y * 1000).round()}',
+                  LineTooltipItem('${spot.y}',
                       TextStyle(color: colorScheme.onSurfaceVariant)),
               ];
             }),
@@ -135,14 +133,14 @@ class _YearlyHoursChartState extends State<YearlyHoursChart> {
             showTitles: true,
             reservedSize: 30,
             interval: 1,
-            getTitlesWidget: bottomTitleWidgets,
+            getTitlesWidget: _bottomTitleWidgets,
           ),
         ),
         leftTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
-            interval: 1,
-            getTitlesWidget: leftTitleWidgets,
+            interval: 2000,
+            getTitlesWidget: _leftTitleWidgets,
             reservedSize: 42,
           ),
         ),
@@ -150,16 +148,13 @@ class _YearlyHoursChartState extends State<YearlyHoursChart> {
       borderData: FlBorderData(
           show: true,
           border: Border.all(color: const Color(0xff37434d), width: 1)),
-      minX: 0,
-      maxX: 1,
+      minX: this.yearlyHours.first.x,
+      maxX: this.yearlyHours.last.x,
       minY: 0,
-      maxY: 8,
+      maxY: 8000,
       lineBarsData: [
         LineChartBarData(
-          spots: [
-            FlSpot(0, 6.219),
-            FlSpot(1, widget.currentHours / 1000),
-          ],
+          spots: this.yearlyHours,
           isCurved: true,
           gradient: LinearGradient(
             colors: _gradientColors,
