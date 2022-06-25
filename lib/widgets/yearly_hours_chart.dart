@@ -39,6 +39,7 @@ class YearlyHoursChart extends StatelessWidget {
         this
             .yearlyHours[(value - this.yearlyHours.first.x).toInt()]
             .x
+            .toInt()
             .toString(),
         style: const TextStyle(
           color: Color(0xff68737d),

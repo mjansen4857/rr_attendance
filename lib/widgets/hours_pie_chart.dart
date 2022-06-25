@@ -24,7 +24,7 @@ class _HoursPieChartState extends State<HoursPieChart> {
   Widget build(BuildContext context) {
     return Card(
       child: Container(
-        height: 200,
+        height: 180,
         child: Row(
           children: [
             const SizedBox(
@@ -52,7 +52,7 @@ class _HoursPieChartState extends State<HoursPieChart> {
                         show: false,
                       ),
                       sectionsSpace: 0,
-                      centerSpaceRadius: 40,
+                      centerSpaceRadius: 35,
                       sections: _buildSections()),
                 ),
               ),

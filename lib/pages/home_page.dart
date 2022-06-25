@@ -23,6 +23,7 @@ class _HomePageState extends State<HomePage> {
   bool _isAdmin = false;
   int _selectedTab = 0;
   late PageController _pageController;
+  late List<NavigationDestination> _destinations;
 
   @override
   void initState() {
@@ -43,6 +44,37 @@ class _HomePageState extends State<HomePage> {
         setState(() {
           _user = user;
           _isAdmin = userInfo.isAdmin;
+
+          _destinations = [
+            NavigationDestination(
+              icon: Icon(Icons.timer),
+              label: 'Time Tracker',
+              tooltip: '',
+            ),
+            if (_dbSettings.leaderboardEnabled || _isAdmin)
+              NavigationDestination(
+                icon: Icon(Icons.leaderboard),
+                label: 'Leaderboard',
+                tooltip: '',
+              ),
+            if (_dbSettings.statsEnabled || _isAdmin)
+              NavigationDestination(
+                icon: Icon(Icons.insights),
+                label: 'Stats',
+                tooltip: '',
+              ),
+            NavigationDestination(
+              icon: Icon(Icons.settings),
+              label: 'Settings',
+              tooltip: '',
+            ),
+            if (_isAdmin)
+              NavigationDestination(
+                icon: Icon(Icons.build),
+                label: 'Control Panel',
+                tooltip: '',
+              ),
+          ];
         });
       });
     });
@@ -63,7 +95,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: _buildBody(),
       appBar: AppBar(
-        title: Text('Attendance'),
+        title: Text(_destinations[_selectedTab].label),
         elevation: 1,
       ),
       bottomNavigationBar: _buildNavigationBar(),
@@ -111,36 +143,8 @@ class _HomePageState extends State<HomePage> {
           // );
         });
       },
-      destinations: [
-        NavigationDestination(
-          icon: Icon(Icons.timer),
-          label: 'Time Tracker',
-          tooltip: '',
-        ),
-        if (_dbSettings.leaderboardEnabled || _isAdmin)
-          NavigationDestination(
-            icon: Icon(Icons.leaderboard),
-            label: 'Leaderboard',
-            tooltip: '',
-          ),
-        if (_dbSettings.statsEnabled || _isAdmin)
-          NavigationDestination(
-            icon: Icon(Icons.insights),
-            label: 'Stats',
-            tooltip: '',
-          ),
-        NavigationDestination(
-          icon: Icon(Icons.settings),
-          label: 'Settings',
-          tooltip: '',
-        ),
-        if (_isAdmin)
-          NavigationDestination(
-            icon: Icon(Icons.build),
-            label: 'Control Panel',
-            tooltip: '',
-          ),
-      ],
+      labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+      destinations: _destinations,
     );
   }
 

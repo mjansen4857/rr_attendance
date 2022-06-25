@@ -84,117 +84,127 @@ class _TimeTrackerPageState extends State<TimeTrackerPage>
       floatingActionButton: _buildFAB(),
       body: Padding(
         padding: const EdgeInsets.all(12),
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
+        child: Stack(
           children: [
-            AnimatedBuilder(
-              animation: anim,
-              builder: (context, child) {
-                return Container(
-                  constraints: BoxConstraints(maxWidth: 640),
-                  child: Card(
-                    child: Container(
-                      height: 112,
-                      child: Center(
-                        child: Text(
-                          _timerStr,
-                          style: TextStyle(
-                            fontSize: 78,
-                            color: _clockInTime == null
-                                ? colorScheme.onSurface
-                                : colorScheme.onPrimaryContainer,
+            Column(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                AnimatedBuilder(
+                  animation: anim,
+                  builder: (context, child) {
+                    return Container(
+                      constraints: BoxConstraints(maxWidth: 640),
+                      child: Card(
+                        child: Container(
+                          height: 96,
+                          child: Center(
+                            child: Text(
+                              _timerStr,
+                              style: TextStyle(
+                                fontSize: 64,
+                                color: _clockInTime == null
+                                    ? colorScheme.onSurface
+                                    : colorScheme.onPrimaryContainer,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                    color: anim.value,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(56),
-                    ),
-                  ),
-                );
-              },
-            ),
-            Container(
-              constraints: BoxConstraints(maxWidth: 640),
-              child: TableCalendar(
-                focusedDay: _focusedDay,
-                firstDay: DateTime.utc(2022, 1, 1),
-                lastDay: DateTime.utc(2022, 12, 31),
-                selectedDayPredicate: (day) {
-                  return isSameDay(_selectedDay, day);
-                },
-                onDaySelected: (selectedDay, focusedDay) {
-                  setState(() {
-                    _selectedDay = selectedDay;
-                    _focusedDay = focusedDay;
-                    _selectedTimecard = _getTimecardForDay(selectedDay);
-                  });
-                },
-                headerStyle: HeaderStyle(formatButtonVisible: false),
-                calendarStyle: CalendarStyle(
-                    markerDecoration: BoxDecoration(
-                  color: colorScheme.primaryContainer,
-                  shape: BoxShape.circle,
-                )),
-                rowHeight: 46,
-                onPageChanged: (focusedDay) {
-                  _focusedDay = focusedDay;
-                },
-                eventLoader: (day) {
-                  TimeCard? c = _getTimecardForDay(day);
-                  if (c != null) {
-                    return [c];
-                  } else {
-                    return [];
-                  }
-                },
-              ),
-            ),
-            Container(
-              constraints: BoxConstraints(maxWidth: 640),
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: _selectedTimecard == null
-                    ? Container()
-                    : Card(
-                        child: ListTile(
-                          title: Text(
-                              '${_selectedTimecard!.hours.toStringAsFixed(2)} hours'),
-                          trailing: _selectedTimecard!.requestPending
-                              ? Text(
-                                  'Request Pending',
-                                  style: TextStyle(color: colorScheme.error),
-                                )
-                              : IconButton(
-                                  icon: Icon(Icons.error_outline),
-                                  onPressed: _showTimeRequestDialog,
-                                ),
+                        color: anim.value,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(56),
                         ),
                       ),
-              ),
+                    );
+                  },
+                ),
+                Container(
+                  constraints: BoxConstraints(maxWidth: 640),
+                  child: TableCalendar(
+                    focusedDay: _focusedDay,
+                    calendarFormat: MediaQuery.of(context).size.height >= 750
+                        ? CalendarFormat.month
+                        : CalendarFormat.twoWeeks,
+                    firstDay: DateTime.utc(2022, 1, 1),
+                    lastDay: DateTime.utc(2022, 12, 31),
+                    selectedDayPredicate: (day) {
+                      return isSameDay(_selectedDay, day);
+                    },
+                    onDaySelected: (selectedDay, focusedDay) {
+                      setState(() {
+                        _selectedDay = selectedDay;
+                        _focusedDay = focusedDay;
+                        _selectedTimecard = _getTimecardForDay(selectedDay);
+                      });
+                    },
+                    headerStyle: HeaderStyle(formatButtonVisible: false),
+                    calendarStyle: CalendarStyle(
+                        markerDecoration: BoxDecoration(
+                      color: colorScheme.primaryContainer,
+                      shape: BoxShape.circle,
+                    )),
+                    rowHeight: 46,
+                    onPageChanged: (focusedDay) {
+                      _focusedDay = focusedDay;
+                    },
+                    eventLoader: (day) {
+                      TimeCard? c = _getTimecardForDay(day);
+                      if (c != null) {
+                        return [c];
+                      } else {
+                        return [];
+                      }
+                    },
+                  ),
+                ),
+                Container(
+                  constraints: BoxConstraints(maxWidth: 640),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: _selectedTimecard == null
+                        ? Container()
+                        : Card(
+                            child: ListTile(
+                              title: Text(
+                                  '${_selectedTimecard!.hours.toStringAsFixed(2)} hours'),
+                              trailing: _selectedTimecard!.requestPending
+                                  ? Text(
+                                      'Request Pending',
+                                      style:
+                                          TextStyle(color: colorScheme.error),
+                                    )
+                                  : IconButton(
+                                      icon: Icon(Icons.error_outline),
+                                      onPressed: _showTimeRequestDialog,
+                                    ),
+                            ),
+                          ),
+                  ),
+                ),
+              ],
             ),
-            Expanded(
-              child: Align(
-                alignment: Alignment.bottomLeft,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      CircularProgressIndicator(
+            Align(
+              alignment: Alignment.bottomLeft,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 46,
+                      height: 46,
+                      child: CircularProgressIndicator(
                         value: min(_totalHours, 60) / 60,
                         backgroundColor: colorScheme.surfaceVariant,
                         color: colorScheme.primary,
                       ),
-                      SizedBox(width: 12),
-                      Text(
-                        '${_totalHours.toStringAsFixed(2)} total hours',
-                        style: TextStyle(fontSize: 18),
-                      ),
-                    ],
-                  ),
+                    ),
+                    SizedBox(width: 12),
+                    Text(
+                      '${_totalHours.toStringAsFixed(2)} total hours',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                  ],
                 ),
               ),
             ),

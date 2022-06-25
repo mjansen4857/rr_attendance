@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -43,56 +45,110 @@ class _SettingsPageState extends State<SettingsPage> {
         label: Text('Sign Out'),
         icon: Icon(Icons.logout),
       ),
-      body: Center(
-        child: Container(
-          constraints: BoxConstraints(maxWidth: 640),
-          child: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.max,
+      body: Stack(
+        children: [
+          Center(
+            child: Container(
+              constraints: BoxConstraints(maxWidth: 640),
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
                   children: [
-                    Expanded(
-                      child: TextField(
-                        onSubmitted: (val) {
-                          if (val.length > 0) {
-                            FocusScopeNode currentScope =
-                                FocusScope.of(context);
-                            if (!currentScope.hasPrimaryFocus &&
-                                currentScope.hasFocus) {
-                              FocusManager.instance.primaryFocus!.unfocus();
-                            }
+                    Row(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            onSubmitted: (val) {
+                              if (val.length > 0) {
+                                FocusScopeNode currentScope =
+                                    FocusScope.of(context);
+                                if (!currentScope.hasPrimaryFocus &&
+                                    currentScope.hasFocus) {
+                                  FocusManager.instance.primaryFocus!.unfocus();
+                                }
 
-                            Database.updateUserName(widget.user, val);
-                          }
-                        },
-                        controller: _nameController,
-                        style: TextStyle(fontSize: 14),
-                        decoration: InputDecoration(
-                          contentPadding: EdgeInsets.fromLTRB(8, 4, 8, 4),
-                          labelText: 'Full Name',
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8)),
+                                Database.updateUserName(widget.user, val);
+                              }
+                            },
+                            controller: _nameController,
+                            style: TextStyle(fontSize: 14),
+                            decoration: InputDecoration(
+                              contentPadding: EdgeInsets.fromLTRB(8, 4, 8, 4),
+                              labelText: 'Full Name',
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8)),
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 12,
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildTeamDropdown(),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-                SizedBox(
-                  height: 12,
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildTeamDropdown(),
-                    ),
-                  ],
-                ),
-              ],
+              ),
             ),
           ),
-        ),
+          Visibility(
+            visible: Platform.isIOS,
+            child: Align(
+              alignment: Alignment.bottomLeft,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: FloatingActionButton.extended(
+                  onPressed: () {
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: Text('Request Account Deletion'),
+                            content: Text(
+                                'Are you sure you want to request account deletion? This is a manual process and will take up to a few days.'),
+                            actions: [
+                              TextButton(
+                                child: Text('No'),
+                                onPressed: () => Navigator.of(context).pop(),
+                              ),
+                              TextButton(
+                                child: Text('Yes'),
+                                onPressed: () {
+                                  Database.requestAccountDeletion(widget.user);
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(SnackBar(
+                                    content: Text(
+                                      'Account deletion request submitted.',
+                                      style: TextStyle(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurfaceVariant),
+                                    ),
+                                    backgroundColor: Theme.of(context)
+                                        .colorScheme
+                                        .surfaceVariant,
+                                  ));
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          );
+                        });
+                  },
+                  label: Text('Delete Account'),
+                  backgroundColor: Theme.of(context).colorScheme.errorContainer,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

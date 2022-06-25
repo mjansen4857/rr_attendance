@@ -126,7 +126,7 @@ class Database {
     DocumentReference inDateDoc =
         timecardCollection.doc('${inTime.year}-${inTime.month}-${inTime.day}');
     DocumentSnapshot inDateDocSnapshot = await inDateDoc.get();
-    double prevHours = 0;
+    num prevHours = 0;
     if (inDateDocSnapshot.exists) {
       prevHours = (inDateDocSnapshot.data() as Map<String, dynamic>)['hours'];
       return inDateDoc.update({'hours': prevHours + hours});
@@ -155,6 +155,13 @@ class Database {
       });
       await addHoursToUserDay(user, hours, inTime.toDate());
     }
+  }
+
+  static Future<void> requestAccountDeletion(User user) async {
+    return _firestore
+        .collection('deletionRequests')
+        .doc(user.uid)
+        .set({'delete': true});
   }
 
   static Future<List<TimeCard>> getTimecards(User user) async {
