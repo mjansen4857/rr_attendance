@@ -1,306 +1,404 @@
 import 'dart:async';
+import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:rr_attendance/services/database.dart';
-import 'package:rr_attendance/services/notifications.dart';
-import 'package:rr_attendance/widgets/flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:rr_attendance/widgets/wave/config.dart';
-import 'package:rr_attendance/widgets/wave/wave.dart';
+import 'package:table_calendar/table_calendar.dart';
 
-class TimeTracker extends StatefulWidget {
+class TimeTrackerPage extends StatefulWidget {
   final User user;
-  final Database db;
-  final Notifications notifications;
 
-  TimeTracker({this.user, this.db, this.notifications});
+  TimeTrackerPage({
+    required this.user,
+    super.key,
+  });
 
   @override
-  State<StatefulWidget> createState() => _TimeTrackerState();
+  State<TimeTrackerPage> createState() => _TimeTrackerPageState();
 }
 
-class _TimeTrackerState extends State<TimeTracker>
+class _TimeTrackerPageState extends State<TimeTrackerPage>
     with SingleTickerProviderStateMixin {
-  DateTime _clockInTimeDate;
-  String _clockedInTime = '00:00:00';
-  bool _isClockedIn = false;
-  Timer _clockedInTimer;
-  bool _isLoading = true;
-
-  AnimationController _buttonAnimController;
-  Animation _buttonColorTween;
+  String _timerStr = '00:00:00';
+  DateTime? _clockInTime;
+  Timer? _clockedInTimer;
+  late AnimationController _timerColorController;
+  DateTime _selectedDay = DateTime.now();
+  DateTime _focusedDay = DateTime.now();
+  Map<String, TimeCard> _timeCards = {};
+  TimeCard? _selectedTimecard;
+  double _totalHours = 0;
 
   @override
   void initState() {
     super.initState();
-    _buttonAnimController =
-        AnimationController(duration: Duration(milliseconds: 300), vsync: this);
-    _buttonColorTween = ColorTween(begin: Colors.indigo, end: Colors.grey[850])
-        .animate(_buttonAnimController);
-    widget.db.getInTimestamp(widget.user).then((value) {
-      if (value != null) {
+
+    FirebaseAnalytics.instance.setCurrentScreen(screenName: 'time_tracker');
+
+    _timerColorController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 200),
+    );
+
+    Database.getUserInfo(widget.user).then((userInfo) {
+      if (userInfo.inTime != null) {
         setState(() {
-          _isClockedIn = true;
-          _clockInTimeDate = value.toDate();
-          setClockedInTime();
-          startTimer();
-          _isLoading = false;
+          _clockInTime = userInfo.inTime!.toDate();
+          _setClockTime();
+          _startTimer();
+          _timerColorController.forward();
         });
-        _buttonAnimController.forward();
-      } else {
-        setState(() {
-          _isClockedIn = false;
-          _clockInTimeDate = null;
-          setClockedInTime();
-          _isLoading = false;
-        });
-        _buttonAnimController.reverse();
       }
+    });
+
+    Database.getTimecards(widget.user).then((timecards) {
+      for (TimeCard c in timecards) {
+        _timeCards.putIfAbsent(c.docId, () => c);
+        _totalHours += c.hours;
+      }
+
+      setState(() {
+        _selectedTimecard = _getTimecardForDay(_selectedDay);
+      });
     });
   }
 
   @override
   void dispose() {
+    _stopTimer();
     super.dispose();
-    stopTimer();
-    _buttonAnimController.dispose();
-  }
-
-  void setClockedInTime() {
-    if (_clockInTimeDate != null) {
-      Duration delta = DateTime.now().difference(_clockInTimeDate);
-      String twoDigits(int n) => n.toString().padLeft(2, '0');
-      _clockedInTime =
-          '${twoDigits(delta.inHours)}:${twoDigits(delta.inMinutes.remainder(60))}:${twoDigits(delta.inSeconds.remainder(60))}';
-    } else {
-      _clockedInTime = '00:00:00';
-    }
-  }
-
-  void startTimer() {
-    _clockedInTimer = Timer.periodic(Duration(seconds: 1), (timer) {
-      setState(() {
-        setClockedInTime();
-      });
-    });
-  }
-
-  void stopTimer() {
-    if (_clockedInTimer != null) {
-      _clockedInTimer.cancel();
-      _clockedInTimer = null;
-    }
-  }
-
-  void clockButtonPressed() {
-    widget.notifications.cancelNotifications();
-    setState(() {
-      _isLoading = true;
-    });
-    if (_isClockedIn) {
-      widget.db.clockOutUser(widget.user).then((hours) {
-        setState(() {
-          stopTimer();
-          _isClockedIn = false;
-          _clockInTimeDate = null;
-          setClockedInTime();
-          _isLoading = false;
-        });
-        _buttonAnimController.reverse();
-      });
-    } else {
-      widget.db.clockInUser(widget.user).then((value) {
-        setState(() {
-          _isClockedIn = true;
-          _clockInTimeDate = DateTime.now();
-          setClockedInTime();
-          startTimer();
-          _isLoading = false;
-        });
-        _buttonAnimController.forward();
-      });
-    }
-  }
-
-  Widget showLoading() {
-    if (_isLoading) {
-      return Center(
-        child: CircularProgressIndicator(),
-      );
-    }
-    return Container(
-      height: 0.0,
-      width: 0.0,
-    );
   }
 
   @override
   Widget build(BuildContext context) {
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+    var anim = ColorTween(
+            begin: colorScheme.surface, end: colorScheme.primaryContainer)
+        .animate(_timerColorController);
+
     return Scaffold(
-      floatingActionButton: buildActionSpeedDial(),
-      body: Container(
+      floatingActionButton: _buildFAB(),
+      body: Padding(
+        padding: const EdgeInsets.all(12),
         child: Stack(
-          children: <Widget>[
-            Align(
-              alignment: FractionalOffset.bottomCenter,
-              child: buildBackgroundWave(),
-            ),
+          children: [
             Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: buildTimeTicker(),
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                AnimatedBuilder(
+                  animation: anim,
+                  builder: (context, child) {
+                    return Container(
+                      constraints: BoxConstraints(maxWidth: 640),
+                      child: Card(
+                        child: Container(
+                          height: 96,
+                          child: Center(
+                            child: Text(
+                              _timerStr,
+                              style: TextStyle(
+                                fontSize: 64,
+                                color: _clockInTime == null
+                                    ? colorScheme.onSurface
+                                    : colorScheme.onPrimaryContainer,
+                              ),
+                            ),
+                          ),
+                        ),
+                        color: anim.value,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(56),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                Container(
+                  constraints: BoxConstraints(maxWidth: 640),
+                  child: TableCalendar(
+                    focusedDay: _focusedDay,
+                    calendarFormat: MediaQuery.of(context).size.height >= 750
+                        ? CalendarFormat.month
+                        : CalendarFormat.twoWeeks,
+                    firstDay: DateTime.utc(2022, 1, 1),
+                    lastDay: DateTime.utc(2022, 12, 31),
+                    selectedDayPredicate: (day) {
+                      return isSameDay(_selectedDay, day);
+                    },
+                    onDaySelected: (selectedDay, focusedDay) {
+                      setState(() {
+                        _selectedDay = selectedDay;
+                        _focusedDay = focusedDay;
+                        _selectedTimecard = _getTimecardForDay(selectedDay);
+                      });
+                    },
+                    headerStyle: HeaderStyle(formatButtonVisible: false),
+                    calendarStyle: CalendarStyle(
+                        markerDecoration: BoxDecoration(
+                      color: colorScheme.primaryContainer,
+                      shape: BoxShape.circle,
+                    )),
+                    rowHeight: 46,
+                    onPageChanged: (focusedDay) {
+                      _focusedDay = focusedDay;
+                    },
+                    eventLoader: (day) {
+                      TimeCard? c = _getTimecardForDay(day);
+                      if (c != null) {
+                        return [c];
+                      } else {
+                        return [];
+                      }
+                    },
+                  ),
+                ),
+                Container(
+                  constraints: BoxConstraints(maxWidth: 640),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: _selectedTimecard == null
+                        ? Container()
+                        : Card(
+                            child: ListTile(
+                              title: Text(
+                                  '${_selectedTimecard!.hours.toStringAsFixed(2)} hours'),
+                              trailing: _selectedTimecard!.requestPending
+                                  ? Text(
+                                      'Request Pending',
+                                      style:
+                                          TextStyle(color: colorScheme.error),
+                                    )
+                                  : IconButton(
+                                      icon: Icon(Icons.error_outline),
+                                      onPressed: _showTimeRequestDialog,
+                                    ),
+                            ),
+                          ),
+                  ),
                 ),
               ],
             ),
-            showLoading()
+            Align(
+              alignment: Alignment.bottomLeft,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 46,
+                      height: 46,
+                      child: CircularProgressIndicator(
+                        value: min(_totalHours, 60) / 60,
+                        backgroundColor: colorScheme.surfaceVariant,
+                        color: colorScheme.primary,
+                      ),
+                    ),
+                    SizedBox(width: 12),
+                    Text(
+                      '${_totalHours.toStringAsFixed(2)} total hours',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget buildTimeTicker() {
-    TextStyle digitStyle = TextStyle(
-      fontSize: 86,
-      color: Colors.grey[100],
-      fontFamily: 'Roboto',
-      fontWeight: FontWeight.w400,
-    );
-    Text separator = Text(':', style: digitStyle);
-    return Card(
-      elevation: 4,
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Text(_clockedInTime[0], style: digitStyle),
-              Text(_clockedInTime[1], style: digitStyle),
-              separator,
-              Text(_clockedInTime[3], style: digitStyle),
-              Text(_clockedInTime[4], style: digitStyle),
-              separator,
-              Text(_clockedInTime[6], style: digitStyle),
-              Text(_clockedInTime[7], style: digitStyle),
-            ],
-          ),
-        ),
-      ),
-      // color: darkAccent,
-    );
-  }
+  Widget _buildFAB() {
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
 
-  Widget buildActionSpeedDial() {
-    return AnimatedBuilder(
-      animation: _buttonColorTween,
-      builder: (context, child) => SpeedDial(
-        elevation: 8,
-        animatedIcon: AnimatedIcons.menu_close,
-        animatedIconTheme: IconThemeData(size: 36),
-        backgroundColor: _buttonColorTween.value,
-        overlayColor: Colors.black,
-        overlayOpacity: 0,
-        buttonSize: 80,
-        children: [
-          SpeedDialChild(
-            child: Icon(
-              _isClockedIn ? Icons.timer_off : Icons.timer,
-              size: 36,
-            ),
-            labelWidget: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                _isClockedIn ? 'Clock Out' : 'Clock In',
-                style: TextStyle(fontSize: 22, color: Colors.white),
-              ),
-            ),
-            backgroundColor: _isClockedIn ? Colors.red[700] : Colors.indigo,
-            onTap: clockButtonPressed,
-          ),
-          SpeedDialChild(
-            child: Icon(
-              Icons.add_alert,
-              size: 36,
-            ),
-            labelWidget: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                'Set Reminder',
-                style: TextStyle(fontSize: 22, color: Colors.white),
-              ),
-            ),
-            backgroundColor: Colors.amber,
-            onTap: setNewReminder,
-          ),
-        ],
-      ),
-    );
-  }
+    if (_clockInTime == null) {
+      return FloatingActionButton.extended(
+        label: Text('Clock In'),
+        icon: Icon(Icons.timer_outlined),
+        onPressed: () {
+          DateTime now = DateTime.now();
+          String key = '${now.year}-${now.month}-${now.day}';
 
-  Future<void> setNewReminder() async {
-    TimeOfDay selectedTime = await showTimePicker(
-      context: context,
-      initialTime:
-          TimeOfDay.fromDateTime(DateTime.now().add(Duration(minutes: 1))),
-      confirmText: 'Confirm',
-      cancelText: 'Cancel',
-      helpText:
-          _isClockedIn ? 'Set Clock Out Reminder' : 'Set Clock In Reminder',
-    );
-    if (selectedTime != null) {
-      DateTime reminderTime = DateTime.now();
-      reminderTime = DateTime(reminderTime.year, reminderTime.month,
-          reminderTime.day, selectedTime.hour, selectedTime.minute);
-      if (reminderTime.isBefore(DateTime.now())) {
-        reminderTime = reminderTime.add(Duration(days: 1));
-      }
-      await widget.notifications.cancelNotifications();
-      widget.notifications.scheduleNotification(
-          '0',
-          _isClockedIn ? 'It\'s time to clock out!' : 'It\'s time to clock in!',
-          reminderTime);
-      Scaffold.of(context).showSnackBar(SnackBar(
-        content: Text(
-          'Reminder scheduled.',
-          style: TextStyle(color: Colors.white, fontSize: 16),
-        ),
-        backgroundColor: Colors.grey[900],
-      ));
+          _timeCards.putIfAbsent(key, () => TimeCard(key, 0, false));
+          setState(() {
+            _clockInTime = DateTime.now();
+            _startTimer();
+            _setClockTime();
+            _timerColorController.forward();
+            _timeCards = _timeCards;
+            _selectedTimecard = _getTimecardForDay(_selectedDay);
+          });
+          Database.clockInUser(widget.user);
+        },
+      );
+    } else {
+      return FloatingActionButton.extended(
+        label: Text('Clock Out'),
+        icon: Icon(Icons.timer_off_outlined),
+        backgroundColor: colorScheme.secondaryContainer,
+        foregroundColor: colorScheme.onSecondaryContainer,
+        onPressed: () {
+          int dSeconds = Timestamp.now().seconds -
+              Timestamp.fromDate(_clockInTime!).seconds;
+          double hours = dSeconds / 60.0 / 60.0;
+          DateTime now = DateTime.now();
+          String key = '${now.year}-${now.month}-${now.day}';
+          _timeCards.update(
+              key,
+              ((value) =>
+                  TimeCard(key, value.hours + hours, value.requestPending)));
+
+          setState(() {
+            _clockInTime = null;
+            _stopTimer();
+            _setClockTime();
+            _timerColorController.reverse();
+            _timeCards = _timeCards;
+            _selectedTimecard = _getTimecardForDay(_selectedDay);
+            _totalHours += hours;
+          });
+          Database.clockOutUser(widget.user);
+        },
+      );
     }
   }
 
-  Widget buildBackgroundWave() {
-    return AnimatedOpacity(
-      opacity: _isClockedIn ? 1.0 : 0.0,
-      duration: Duration(milliseconds: 500),
-      curve: Curves.easeInOut,
-      child: Container(
-        height: 200,
-        width: double.infinity,
-        child: WaveWidget(
-          backgroundColor: Colors.transparent,
-          size: Size(double.infinity, double.infinity),
-          waveAmplitude: 5,
-          wavePhase: 25,
-          waveFrequency: 1.0,
-          config: CustomConfig(
-            gradients: [
-              [Colors.indigo[700], Color(0xee303f9f)],
-              [Colors.indigo[600], Color(0x773949ab)],
-              [Colors.indigo[500], Color(0x663f51b5)],
-              [Colors.indigo[400], Color(0x555c6bc0)],
+  void _showTimeRequestDialog() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          TextEditingController controller = TextEditingController();
+
+          return AlertDialog(
+            title: Text('Submit Time Request'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  onSubmitted: (val) {
+                    if (val.length > 0) {
+                      Navigator.of(context).pop();
+                      _submitTimeRequest(num.parse(controller.text));
+                    }
+                  },
+                  autofocus: true,
+                  keyboardType: TextInputType.numberWithOptions(
+                      signed: false, decimal: true),
+                  keyboardAppearance: Brightness.dark,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'(\d*\.?\d*)'))
+                  ],
+                  controller: controller,
+                  style: TextStyle(fontSize: 14),
+                  decoration: InputDecoration(
+                    contentPadding: EdgeInsets.fromLTRB(8, 4, 8, 4),
+                    labelText: 'Requested Hours',
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                  ),
+                )
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  if (controller.text.length > 0) {
+                    Navigator.of(context).pop();
+                    _submitTimeRequest(num.parse(controller.text));
+                  }
+                },
+                child: Text('Submit'),
+              ),
             ],
-            gradientBegin: Alignment.bottomCenter,
-            gradientEnd: Alignment.topCenter,
-            durations: [35000, 19440, 13800, 10000],
-            heightPercentages: [0.10, 0.15, 0.20, 0.25],
+          );
+        });
+  }
+
+  void _submitTimeRequest(num hours) async {
+    if (_selectedTimecard != null) {
+      List<String> dateVals = _selectedTimecard!.docId.split('-');
+      DateTime date = DateTime(int.parse(dateVals[0]), int.parse(dateVals[1]),
+          int.parse(dateVals[2]));
+
+      TimeRequest request = TimeRequest(
+        uid: widget.user.uid,
+        userName: widget.user.displayName ?? 'NULL',
+        requestDate: date,
+        prevHours: _selectedTimecard!.hours,
+        newHours: hours,
+      );
+
+      bool submitted = await Database.submitTimeRequest(request);
+
+      _timeCards.update(_selectedTimecard!.docId,
+          (value) => TimeCard(value.docId, hours, true));
+
+      setState(() {
+        _timeCards = _timeCards;
+        _selectedTimecard = _getTimecardForDay(_selectedDay);
+      });
+
+      ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+      if (submitted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(
+            'Time change request submitted.',
+            style: TextStyle(color: colorScheme.onSurfaceVariant),
           ),
-        ),
-      ),
-    );
+          backgroundColor: colorScheme.surfaceVariant,
+        ));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(
+            'You already have a pending time request for this day.',
+            style: TextStyle(color: colorScheme.error),
+          ),
+          backgroundColor: colorScheme.surfaceVariant,
+        ));
+      }
+    }
+  }
+
+  void _startTimer() {
+    _clockedInTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+      _setClockTime();
+    });
+  }
+
+  void _stopTimer() {
+    if (_clockedInTimer != null) {
+      _clockedInTimer!.cancel();
+      _clockedInTimer = null;
+    }
+  }
+
+  void _setClockTime() {
+    if (_clockInTime != null) {
+      Duration delta = DateTime.now().difference(_clockInTime!);
+      String twoDigits(int n) => n.toString().padLeft(2, '0');
+      setState(() {
+        _timerStr =
+            '${twoDigits(delta.inHours)}:${twoDigits(delta.inMinutes.remainder(60))}:${twoDigits(delta.inSeconds.remainder(60))}';
+      });
+    } else {
+      setState(() {
+        _timerStr = '00:00:00';
+      });
+    }
+  }
+
+  TimeCard? _getTimecardForDay(DateTime day) {
+    String key = '${day.year}-${day.month}-${day.day}';
+    if (_timeCards.containsKey(key)) {
+      return _timeCards[key];
+    }
+    return null;
   }
 }

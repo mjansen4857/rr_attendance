@@ -15,6 +15,38 @@
       },
       "oauth_client": [
         {
+          "client_id": "853905520563-9th1gppm7laba6bdcjl89lbsgq4dhpts.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mjansen4857.rr_attendance",
+            "certificate_hash": "3a9f044091b662b4c98b1ff90e90c37f4deef8f5"
+          }
+        },
+        {
+          "client_id": "853905520563-t2j148aqt9d0aipb0h1g7n3ulqtj4m4m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mjansen4857.rr_attendance",
+            "certificate_hash": "df0fe9d6c773782c1863e70a2c9daf55a32c75dd"
+          }
+        },
+        {
+          "client_id": "853905520563-uhd8csesv1clpr2k9qiukcul939p39jp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mjansen4857.rr_attendance",
+            "certificate_hash": "dd97b77d55992bad742b9be536fafcf3c6b80c20"
+          }
+        },
+        {
+          "client_id": "853905520563-v2p739ecemj28q7nvqu227r18i3nkf9u.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mjansen4857.rr_attendance",
+            "certificate_hash": "d1e987132ff4733e5d3d45197b0d1c5627d71e0e"
+          }
+        },
+        {
           "client_id": "853905520563-r4i3i7ifvs8eh5ka5kbuqp0kc6j75fbn.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -28,8 +60,15 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "853905520563-r4i3i7ifvs8eh5ka5kbuqp0kc6j75fbn.apps.googleusercontent.com",
+              "client_id": "853905520563-qpmf02boutojtb26951i6n1hto7bn32b.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "853905520563-4840jpqb651dbl4efjd3mtjidkdanerm.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.mjansen4857.rrAttendance"
+              }
             }
           ]
         }

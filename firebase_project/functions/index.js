@@ -69,3 +69,19 @@ exports.updateTotalOnCreate = functions.firestore
             userDoc.update({ total_hours: prevTotal + newHours });
         });
     });
+
+    exports.updateTotalOnUpdate = functions.firestore
+    .document('users/{userId}/timecard/{docId}')
+    .onUpdate((change, context) => {
+        const user = context.params.userId;
+        const newValue = change.after.data().hours;
+        const prevValue = change.before.data().hours;
+
+        const delta = newValue - prevValue;
+
+        const userDoc = db.doc('users/' + user);
+        return userDoc.get().then(snap => {
+            const prevTotal = snap.data().total_hours;
+            userDoc.update({ total_hours: prevTotal + delta });
+        });
+    });

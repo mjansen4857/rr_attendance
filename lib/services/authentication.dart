@@ -2,37 +2,34 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:crypto/crypto.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 class Authentication {
-  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  final FirebaseAnalytics analytics;
+  static final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
-  Authentication({this.analytics});
+  static Future<User?> signInWithGoogle() async {
+    GoogleSignIn googleSignIn = GoogleSignIn(scopes: ['email']);
+    GoogleSignInAccount? account = await googleSignIn.signIn();
 
-  Future<User> signInWithGoogle() async {
-    GoogleSignInAccount googleSignInAccount = await GoogleSignIn().signIn();
-    GoogleSignInAuthentication googleSignInAuthentication =
-        await googleSignInAccount.authentication;
+    if (account != null) {
+      GoogleSignInAuthentication auth = await account.authentication;
+      AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: auth.accessToken,
+        idToken: auth.idToken,
+      );
 
-    AuthCredential credential = GoogleAuthProvider.credential(
-      accessToken: googleSignInAuthentication.accessToken,
-      idToken: googleSignInAuthentication.idToken,
-    );
-
-    UserCredential authResult =
-        await _firebaseAuth.signInWithCredential(credential);
-    User user = authResult.user;
-    analytics.logLogin(loginMethod: 'Google');
-    return user;
+      UserCredential authResult =
+          await _firebaseAuth.signInWithCredential(credential);
+      return authResult.user;
+    }
+    return null;
   }
 
-  Future<User> signInWithApple() async {
-    final rawNonce = generateNonce();
-    final nonce = sha256ofString(rawNonce);
+  static Future<User?> signInWithApple() async {
+    final rawNonce = _generateNonce();
+    final nonce = _sha256ofString(rawNonce);
 
     final appleCredential = await SignInWithApple.getAppleIDCredential(
       scopes: [
@@ -42,9 +39,6 @@ class Authentication {
       nonce: nonce,
     );
 
-    final givenName = appleCredential.givenName;
-    final familyName = appleCredential.familyName;
-
     final oauthCredential = OAuthProvider('apple.com').credential(
       idToken: appleCredential.identityToken,
       rawNonce: rawNonce,
@@ -52,17 +46,21 @@ class Authentication {
 
     UserCredential authResult =
         await _firebaseAuth.signInWithCredential(oauthCredential);
-    User user = authResult.user;
 
-    if(givenName != null && familyName != null){
-      await user.updateProfile(displayName: givenName + ' ' + familyName);
+    User? user = authResult.user;
+
+    if (user != null) {
+      if (appleCredential.givenName != null &&
+          appleCredential.familyName != null) {
+        await user.updateDisplayName(
+            appleCredential.givenName! + ' ' + appleCredential.familyName!);
+      }
+      return getCurrentUser();
     }
-
-    analytics.logLogin(loginMethod: 'Apple ID');
-    return getCurrentUser();
+    return null;
   }
 
-  String generateNonce([int length = 32]) {
+  static String _generateNonce([int length = 32]) {
     final charset =
         '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
     final random = Random.secure();
@@ -70,18 +68,17 @@ class Authentication {
         .join();
   }
 
-  String sha256ofString(String input) {
+  static String _sha256ofString(String input) {
     final bytes = utf8.encode(input);
     final digest = sha256.convert(bytes);
     return digest.toString();
   }
 
-  Future<User> getCurrentUser() async {
-    User user = _firebaseAuth.currentUser;
-    return user;
+  static Future<User?> getCurrentUser() async {
+    return _firebaseAuth.currentUser;
   }
 
-  Future<void> signOut() async {
+  static Future<void> signOut() async {
     await GoogleSignIn().signOut();
     return _firebaseAuth.signOut();
   }

@@ -1,143 +1,136 @@
-import 'package:flutter/cupertino.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
-import 'package:rr_attendance/services/cloud_functions.dart';
 import 'package:rr_attendance/services/database.dart';
-import 'package:rr_attendance/widgets/stats_displays/number_stat.dart';
+import 'package:rr_attendance/widgets/control_panel_card.dart';
+import 'package:rr_attendance/widgets/request_card.dart';
 
 class ControlPanelPage extends StatefulWidget {
-  final Database db;
-
-  ControlPanelPage({this.db});
+  ControlPanelPage({super.key});
 
   @override
-  State<StatefulWidget> createState() => _ControlPanelPageState();
+  State<ControlPanelPage> createState() => _ControlPanelPageState();
 }
 
 class _ControlPanelPageState extends State<ControlPanelPage> {
-  bool _isLoading = true;
-  int _totalUsers = 0;
-  int _clockedInUsers = 0;
+  int? _numUsers;
+  int? _numClockedIn;
+  List<TimeRequest> _timeRequests = [];
 
   @override
   void initState() {
     super.initState();
-    widget.db.getTotalUsers().then((totalUsers) {
-      widget.db.getClockedInUsers().then((clockedIn) {
-        setState(() {
-          _isLoading = false;
-          _totalUsers = totalUsers;
-          _clockedInUsers = clockedIn;
-        });
+
+    FirebaseAnalytics.instance.setCurrentScreen(screenName: 'control_panel');
+
+    Database.getNumUsers().then((numUsers) {
+      setState(() {
+        _numUsers = numUsers;
+      });
+    });
+
+    Database.getNumClockedIn().then((numClockedIn) {
+      setState(() {
+        _numClockedIn = numClockedIn;
+      });
+    });
+
+    Database.getTimeRequests().then((requests) {
+      setState(() {
+        _timeRequests = requests;
       });
     });
   }
 
-  Widget showLoading() {
-    if (_isLoading) {
-      return Center(
-        child: CircularProgressIndicator(),
-      );
-    }
-    return Container(
-      height: 0.0,
-      width: 0.0,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        Center(
-          child: CupertinoScrollbar(
-            child: ListView(
-              padding: EdgeInsets.all(12),
-              children: [
-                Center(
-                  child: Text(
-                    'User Stats',
-                    style: TextStyle(fontSize: 32),
-                  ),
-                ),
-                Divider(),
-                Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Spacer(flex: 1),
-                    Expanded(
-                      flex: 10,
-                      child: NumberStat(_totalUsers, 'Users'),
-                    ),
-                    Spacer(flex: 2),
-                    Expanded(
-                      flex: 10,
-                      child: NumberStat(_clockedInUsers, 'Clocked In'),
-                    ),
-                    Spacer(flex: 1),
-                  ],
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 50),
-                  child: Center(
-                    child: Text(
-                      'Database',
-                      style: TextStyle(fontSize: 32),
-                    ),
-                  ),
-                ),
-                Divider(),
-                RaisedButton(
-                  onPressed: () {
-                    // Disable button so that it can only be pressed in a debug environment
-                    // _showResetHoursDialog();
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      'Reset Hours',
-                      style: TextStyle(fontSize: 24),
-                    ),
-                  ),
-                  color: Colors.grey[700],
-                ),
-              ],
-            ),
-          ),
-        ),
-        showLoading(),
-      ],
-    );
-  }
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
 
-  Future<void> _showResetHoursDialog() async {
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Reset Hours Confirmation'),
-          content: Text(
-              'Are you sure you want to reset all hours? This can not be undone!'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                setState(() {
-                  _isLoading = true;
-                  CloudFunctions.resetHours().then((value) {
-                    setState(() {
-                      _isLoading = false;
-                    });
-                  });
-                });
-              },
-              child: Text(
-                'Confirm',
+    return Center(
+      child: Container(
+        constraints: BoxConstraints(maxWidth: 640),
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            _buildUserCards(),
+            SizedBox(height: 12),
+            Text(
+              'Time Change Requests',
+              style: TextStyle(fontSize: 20),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: Divider(),
+            ),
+            Expanded(
+              child: ListView(
+                children: [
+                  for (TimeRequest request in _timeRequests)
+                    RequestCard(
+                      request: request,
+                      removeRequestCallback: (TimeRequest request) {
+                        setState(() {
+                          _timeRequests.remove(request);
+                        });
+                      },
+                    ),
+                ],
+              ),
+            ),
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
+              child: ElevatedButton(
+                onPressed: () {},
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    'Reset All Hours',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: Size(double.infinity, 56),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
+                  primary: colorScheme.primaryContainer,
+                  onPrimary: colorScheme.onPrimaryContainer,
+                ),
               ),
             ),
           ],
-        );
-      },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUserCards() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Expanded(
+            child: ControlPanelCard(
+              data: _numUsers,
+              label: 'Users',
+            ),
+            flex: 1,
+          ),
+          SizedBox(
+            width: 8,
+          ),
+          Expanded(
+            child: ControlPanelCard(
+              data: _numClockedIn,
+              label: 'Clocked In',
+            ),
+            flex: 1,
+          ),
+        ],
+      ),
     );
   }
 }
