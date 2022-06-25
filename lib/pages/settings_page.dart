@@ -39,7 +39,10 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
+      backgroundColor: colorScheme.surface,
       floatingActionButton: FloatingActionButton.extended(
         onPressed: widget.onSignOut,
         label: Text('Sign Out'),
@@ -110,6 +113,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         context: context,
                         builder: (context) {
                           return AlertDialog(
+                            backgroundColor: colorScheme.surface,
                             title: Text('Request Account Deletion'),
                             content: Text(
                                 'Are you sure you want to request account deletion? This is a manual process and will take up to a few days.'),

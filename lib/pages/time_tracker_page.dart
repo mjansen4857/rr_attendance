@@ -82,6 +82,7 @@ class _TimeTrackerPageState extends State<TimeTrackerPage>
 
     return Scaffold(
       floatingActionButton: _buildFAB(),
+      backgroundColor: colorScheme.surface,
       body: Padding(
         padding: const EdgeInsets.all(12),
         child: Stack(
@@ -138,10 +139,25 @@ class _TimeTrackerPageState extends State<TimeTrackerPage>
                     },
                     headerStyle: HeaderStyle(formatButtonVisible: false),
                     calendarStyle: CalendarStyle(
-                        markerDecoration: BoxDecoration(
-                      color: colorScheme.primaryContainer,
-                      shape: BoxShape.circle,
-                    )),
+                      markerDecoration: BoxDecoration(
+                        color: colorScheme.secondaryContainer,
+                        shape: BoxShape.circle,
+                      ),
+                      todayDecoration: BoxDecoration(
+                        color: colorScheme.primary,
+                        shape: BoxShape.circle,
+                      ),
+                      todayTextStyle: TextStyle(
+                        color: colorScheme.onPrimary,
+                      ),
+                      selectedDecoration: BoxDecoration(
+                        color: colorScheme.primaryContainer,
+                        shape: BoxShape.circle,
+                      ),
+                      selectedTextStyle: TextStyle(
+                        color: colorScheme.onPrimaryContainer,
+                      ),
+                    ),
                     rowHeight: 46,
                     onPageChanged: (focusedDay) {
                       _focusedDay = focusedDay;
@@ -274,8 +290,10 @@ class _TimeTrackerPageState extends State<TimeTrackerPage>
         context: context,
         builder: (context) {
           TextEditingController controller = TextEditingController();
+          ColorScheme colorScheme = Theme.of(context).colorScheme;
 
           return AlertDialog(
+            backgroundColor: colorScheme.surface,
             title: Text('Submit Time Request'),
             content: Column(
               mainAxisSize: MainAxisSize.min,
@@ -290,7 +308,7 @@ class _TimeTrackerPageState extends State<TimeTrackerPage>
                   autofocus: true,
                   keyboardType: TextInputType.numberWithOptions(
                       signed: false, decimal: true),
-                  keyboardAppearance: Brightness.dark,
+                  keyboardAppearance: colorScheme.brightness,
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(RegExp(r'(\d*\.?\d*)'))
                   ],

@@ -92,8 +92,11 @@ class _HomePageState extends State<HomePage> {
       return Container();
     }
 
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       body: _buildBody(),
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
         title: Text(_destinations[_selectedTab].label),
         elevation: 1,

@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:dynamic_color/dynamic_color.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:rr_attendance/pages/home_page.dart';
@@ -18,23 +21,47 @@ class AttendanceApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = ThemeData(
-      useMaterial3: true,
-      colorSchemeSeed: Colors.indigo,
+    final ColorScheme defaultLightScheme = ColorScheme.fromSeed(
+      seedColor: Colors.indigo,
       brightness: Brightness.light,
     );
 
-    final ThemeData darkTheme = ThemeData(
-      useMaterial3: true,
-      colorSchemeSeed: Colors.indigo,
+    final ColorScheme defaultDarkScheme = ColorScheme.fromSeed(
+      seedColor: Colors.indigo,
       brightness: Brightness.dark,
     );
 
-    return MaterialApp(
-      title: 'Attendance',
-      theme: theme,
-      darkTheme: darkTheme,
-      home: HomePage(),
-    );
+    if (Platform.isAndroid) {
+      return DynamicColorBuilder(builder: ((lightDynamic, darkDynamic) {
+        ColorScheme lightScheme = defaultLightScheme;
+        ColorScheme darkScheme = defaultDarkScheme;
+
+        if (lightDynamic != null && darkDynamic != null) {
+          lightScheme = lightDynamic.harmonized();
+          darkScheme = darkDynamic.harmonized();
+        }
+
+        return MaterialApp(
+          theme: ThemeData(
+            colorScheme: lightScheme,
+            useMaterial3: true,
+          ),
+          darkTheme: ThemeData(
+            colorScheme: darkScheme,
+            useMaterial3: true,
+          ),
+          title: 'Attendance',
+          home: HomePage(),
+        );
+      }));
+    } else {
+      return MaterialApp(
+        title: 'Attendance',
+        theme: ThemeData(useMaterial3: true, colorScheme: defaultLightScheme),
+        darkTheme:
+            ThemeData(useMaterial3: true, colorScheme: defaultDarkScheme),
+        home: HomePage(),
+      );
+    }
   }
 }

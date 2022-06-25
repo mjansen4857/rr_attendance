@@ -29,7 +29,10 @@ class _UserUpdateDialogState extends State<UserUpdateDialog> {
 
   @override
   Widget build(BuildContext context) {
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+
     return AlertDialog(
+      backgroundColor: colorScheme.surface,
       title: Text('Update Name & Team'),
       actions: [
         TextButton(
