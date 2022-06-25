@@ -133,6 +133,7 @@ class _HoursPieChartState extends State<HoursPieChart> {
             titleStyle: TextStyle(
               fontSize: fontSize,
               fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
           );
         case 1:
@@ -144,6 +145,7 @@ class _HoursPieChartState extends State<HoursPieChart> {
             titleStyle: TextStyle(
               fontSize: fontSize,
               fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
           );
         case 2:
@@ -155,6 +157,7 @@ class _HoursPieChartState extends State<HoursPieChart> {
             titleStyle: TextStyle(
               fontSize: fontSize,
               fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
           );
         default:

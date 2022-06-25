@@ -21,12 +21,19 @@ class AttendanceApp extends StatelessWidget {
     final ThemeData theme = ThemeData(
       useMaterial3: true,
       colorSchemeSeed: Colors.indigo,
+      brightness: Brightness.light,
+    );
+
+    final ThemeData darkTheme = ThemeData(
+      useMaterial3: true,
+      colorSchemeSeed: Colors.indigo,
       brightness: Brightness.dark,
     );
 
     return MaterialApp(
       title: 'Attendance',
       theme: theme,
+      darkTheme: darkTheme,
       home: HomePage(),
     );
   }
