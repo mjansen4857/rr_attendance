@@ -7,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rr_attendance/services/database.dart';
+import 'package:rr_attendance/widgets/conditional_widget.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class TimeTrackerPage extends StatefulWidget {
@@ -81,7 +82,7 @@ class _TimeTrackerPageState extends State<TimeTrackerPage>
         .animate(_timerColorController);
 
     return Scaffold(
-      floatingActionButton: _buildFAB(),
+      floatingActionButton: _buildFABs(),
       backgroundColor: colorScheme.surface,
       body: Padding(
         padding: const EdgeInsets.all(12),
@@ -217,8 +218,8 @@ class _TimeTrackerPageState extends State<TimeTrackerPage>
                     ),
                     SizedBox(width: 12),
                     Text(
-                      '${_totalHours.toStringAsFixed(2)} total hours',
-                      style: TextStyle(fontSize: 18),
+                      '${_totalHours.toStringAsFixed(1)} hours',
+                      style: TextStyle(fontSize: 16),
                     ),
                   ],
                 ),
@@ -230,59 +231,89 @@ class _TimeTrackerPageState extends State<TimeTrackerPage>
     );
   }
 
-  Widget _buildFAB() {
+  Widget _buildFABs() {
     ColorScheme colorScheme = Theme.of(context).colorScheme;
 
-    if (_clockInTime == null) {
-      return FloatingActionButton.extended(
-        label: Text('Clock In'),
-        icon: Icon(Icons.timer_outlined),
-        onPressed: () {
-          DateTime now = DateTime.now();
-          String key = '${now.year}-${now.month}-${now.day}';
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        FloatingActionButton(
+          child: const Icon(Icons.add_alert),
+          backgroundColor: colorScheme.tertiaryContainer,
+          foregroundColor: colorScheme.onTertiaryContainer,
+          onPressed: () async {
+            TimeOfDay? selectedTime = await showTimePicker(
+              context: context,
+              initialTime: TimeOfDay.fromDateTime(
+                  DateTime.now().add(Duration(minutes: 1))),
+              helpText:
+                  'Set Clock ${_clockInTime == null ? 'In' : 'Out'} Reminder',
+            );
+          },
+        ),
+        SizedBox(width: 8),
+        FloatingActionButton.extended(
+          backgroundColor: _clockInTime == null
+              ? colorScheme.primaryContainer
+              : colorScheme.secondaryContainer,
+          foregroundColor: _clockInTime == null
+              ? colorScheme.onPrimaryContainer
+              : colorScheme.onSecondaryContainer,
+          label: SizedBox(
+            width: 68,
+            child: Center(
+              child: ConditionalWidget(
+                condition: _clockInTime == null,
+                ifTrue: const Text('Clock In'),
+                ifFalse: const Text('Clock Out'),
+              ),
+            ),
+          ),
+          icon: ConditionalWidget(
+            condition: _clockInTime == null,
+            ifTrue: const Icon(Icons.timer_outlined),
+            ifFalse: const Icon(Icons.timer_off_outlined),
+          ),
+          onPressed: () {
+            DateTime now = DateTime.now();
+            String key = '${now.year}-${now.month}-${now.day}';
 
-          _timeCards.putIfAbsent(key, () => TimeCard(key, 0, false));
-          setState(() {
-            _clockInTime = DateTime.now();
-            _startTimer();
-            _setClockTime();
-            _timerColorController.forward();
-            _timeCards = _timeCards;
-            _selectedTimecard = _getTimecardForDay(_selectedDay);
-          });
-          Database.clockInUser(widget.user);
-        },
-      );
-    } else {
-      return FloatingActionButton.extended(
-        label: Text('Clock Out'),
-        icon: Icon(Icons.timer_off_outlined),
-        backgroundColor: colorScheme.secondaryContainer,
-        foregroundColor: colorScheme.onSecondaryContainer,
-        onPressed: () {
-          int dSeconds = Timestamp.now().seconds -
-              Timestamp.fromDate(_clockInTime!).seconds;
-          double hours = dSeconds / 60.0 / 60.0;
-          DateTime now = DateTime.now();
-          String key = '${now.year}-${now.month}-${now.day}';
-          _timeCards.update(
-              key,
-              ((value) =>
-                  TimeCard(key, value.hours + hours, value.requestPending)));
+            if (_clockInTime == null) {
+              _timeCards.putIfAbsent(key, () => TimeCard(key, 0, false));
+              setState(() {
+                _clockInTime = DateTime.now();
+                _startTimer();
+                _setClockTime();
+                _timerColorController.forward();
+                _timeCards = _timeCards;
+                _selectedTimecard = _getTimecardForDay(_selectedDay);
+              });
+              Database.clockInUser(widget.user);
+            } else {
+              int dSeconds = Timestamp.now().seconds -
+                  Timestamp.fromDate(_clockInTime!).seconds;
+              double hours = dSeconds / 60.0 / 60.0;
 
-          setState(() {
-            _clockInTime = null;
-            _stopTimer();
-            _setClockTime();
-            _timerColorController.reverse();
-            _timeCards = _timeCards;
-            _selectedTimecard = _getTimecardForDay(_selectedDay);
-            _totalHours += hours;
-          });
-          Database.clockOutUser(widget.user);
-        },
-      );
-    }
+              _timeCards.update(
+                  key,
+                  ((value) => TimeCard(
+                      key, value.hours + hours, value.requestPending)));
+
+              setState(() {
+                _clockInTime = null;
+                _stopTimer();
+                _setClockTime();
+                _timerColorController.reverse();
+                _timeCards = _timeCards;
+                _selectedTimecard = _getTimecardForDay(_selectedDay);
+                _totalHours += hours;
+              });
+              Database.clockOutUser(widget.user);
+            }
+          },
+        ),
+      ],
+    );
   }
 
   void _showTimeRequestDialog() {

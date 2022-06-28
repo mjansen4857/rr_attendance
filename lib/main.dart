@@ -4,6 +4,7 @@ import 'package:dynamic_color/dynamic_color.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:rr_attendance/pages/home_page.dart';
+import 'package:rr_attendance/services/notifications.dart';
 
 import 'firebase_options.dart';
 
@@ -12,6 +13,8 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  Notifications.init();
 
   runApp(AttendanceApp());
 }
