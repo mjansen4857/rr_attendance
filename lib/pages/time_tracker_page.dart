@@ -7,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rr_attendance/services/database.dart';
+import 'package:rr_attendance/services/notifications.dart';
 import 'package:rr_attendance/widgets/conditional_widget.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -249,6 +250,30 @@ class _TimeTrackerPageState extends State<TimeTrackerPage>
               helpText:
                   'Set Clock ${_clockInTime == null ? 'In' : 'Out'} Reminder',
             );
+
+            if (selectedTime != null) {
+              DateTime reminderTime = DateTime.now();
+              reminderTime = DateTime(reminderTime.year, reminderTime.month,
+                  reminderTime.day, selectedTime.hour, selectedTime.minute);
+              if (reminderTime.isBefore(DateTime.now())) {
+                reminderTime = reminderTime.add(Duration(days: 1));
+              }
+
+              await Notifications.cancelScheduledNotifications();
+              Notifications.scheduleNotification(
+                'Reminder',
+                'It\'s time to clock ${_clockInTime == null ? 'in' : 'out'}!',
+                reminderTime,
+              );
+
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text(
+                  'Reminder Scheduled.',
+                  style: TextStyle(color: colorScheme.onSurfaceVariant),
+                ),
+                backgroundColor: colorScheme.surfaceVariant,
+              ));
+            }
           },
         ),
         SizedBox(width: 8),
