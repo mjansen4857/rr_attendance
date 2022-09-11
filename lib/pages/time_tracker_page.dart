@@ -376,7 +376,7 @@ class _TimeTrackerPageState extends State<TimeTrackerPage>
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8)),
                   ),
-                )
+                ),
               ],
             ),
             actions: [

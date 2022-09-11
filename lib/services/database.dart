@@ -241,6 +241,20 @@ class Database {
 
     return prevYears;
   }
+
+  static Future resetAllHours() async {
+    QuerySnapshot usersSnapshot = await _users.get();
+
+    for (QueryDocumentSnapshot userDoc in usersSnapshot.docs) {
+      DocumentReference userRef = _users.doc(userDoc.id);
+      CollectionReference timecardRef = userRef.collection('timecard');
+      QuerySnapshot timecardSnapshot = await timecardRef.get();
+
+      for (QueryDocumentSnapshot timeDoc in timecardSnapshot.docs) {
+        await timecardRef.doc(timeDoc.id).delete();
+      }
+    }
+  }
 }
 
 class Settings {

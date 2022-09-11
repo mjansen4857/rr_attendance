@@ -127,7 +127,10 @@ class _HomePageState extends State<HomePage> {
           user: _user!,
           onSignOut: _signOut,
         ),
-        if (_isAdmin) ControlPanelPage(),
+        if (_isAdmin)
+          ControlPanelPage(
+            resetPassword: _dbSettings.resetPassword,
+          ),
       ],
     );
   }

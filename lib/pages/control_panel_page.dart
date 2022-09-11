@@ -5,7 +5,12 @@ import 'package:rr_attendance/widgets/control_panel_card.dart';
 import 'package:rr_attendance/widgets/request_card.dart';
 
 class ControlPanelPage extends StatefulWidget {
-  ControlPanelPage({super.key});
+  final String resetPassword;
+
+  ControlPanelPage({
+    super.key,
+    required this.resetPassword,
+  });
 
   @override
   State<ControlPanelPage> createState() => _ControlPanelPageState();
@@ -82,7 +87,9 @@ class _ControlPanelPageState extends State<ControlPanelPage> {
               padding:
                   const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  _showResetDialog(context);
+                },
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
@@ -131,6 +138,89 @@ class _ControlPanelPageState extends State<ControlPanelPage> {
           ),
         ],
       ),
+    );
+  }
+
+  void _showResetDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        TextEditingController controller = TextEditingController();
+        ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+        return AlertDialog(
+          backgroundColor: colorScheme.surface,
+          title: Text('Reset All Hours'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                onSubmitted: (val) async {
+                  Navigator.of(context).pop();
+
+                  if (val == widget.resetPassword) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Resetting hours...'),
+                      ),
+                    );
+                    await Database.resetAllHours();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Hours reset'),
+                      ),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Invalid reset password'),
+                      ),
+                    );
+                  }
+                },
+                autofocus: true,
+                keyboardAppearance: colorScheme.brightness,
+                controller: controller,
+                style: TextStyle(fontSize: 14),
+                decoration: InputDecoration(
+                  contentPadding: EdgeInsets.fromLTRB(8, 4, 8, 4),
+                  labelText: 'Reset Password',
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+
+                if (controller.text == widget.resetPassword) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Resetting hours...'),
+                    ),
+                  );
+                  await Database.resetAllHours();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Hours reset'),
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Invalid reset password'),
+                    ),
+                  );
+                }
+              },
+              child: Text('Submit'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
