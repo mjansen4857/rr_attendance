@@ -101,8 +101,8 @@ class _ControlPanelPageState extends State<ControlPanelPage> {
                   minimumSize: Size(double.infinity, 56),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16)),
-                  primary: colorScheme.primaryContainer,
-                  onPrimary: colorScheme.onPrimaryContainer,
+                  backgroundColor: colorScheme.primaryContainer,
+                  foregroundColor: colorScheme.onPrimaryContainer,
                 ),
               ),
             ),

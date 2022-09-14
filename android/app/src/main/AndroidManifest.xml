@@ -32,4 +32,5 @@
             android:value="2" />
         <meta-data android:name="google_analytics_automatic_screen_reporting_enabled" android:value="false" />
     </application>
+    <uses-permission android:name="android.permission.INTERNET"/>
 </manifest>
