@@ -253,6 +253,7 @@ class Database {
       for (QueryDocumentSnapshot timeDoc in timecardSnapshot.docs) {
         await timecardRef.doc(timeDoc.id).delete();
       }
+      await userRef.update({'total_hours': 0.0});
     }
   }
 }
