@@ -34,6 +34,7 @@ class _TimeTrackerPageState extends State<TimeTrackerPage>
   Map<String, TimeCard> _timeCards = {};
   TimeCard? _selectedTimecard;
   double _totalHours = 0;
+  int _currentYear = DateTime.now().year;
 
   @override
   void initState() {
@@ -127,8 +128,8 @@ class _TimeTrackerPageState extends State<TimeTrackerPage>
                     calendarFormat: MediaQuery.of(context).size.height >= 750
                         ? CalendarFormat.month
                         : CalendarFormat.twoWeeks,
-                    firstDay: DateTime.utc(2022, 1, 1),
-                    lastDay: DateTime.utc(2022, 12, 31),
+                    firstDay: DateTime.utc(_currentYear, 1, 1),
+                    lastDay: DateTime.utc(_currentYear, 12, 31),
                     selectedDayPredicate: (day) {
                       return isSameDay(_selectedDay, day);
                     },
