@@ -28,13 +28,15 @@ class _StatsPageState extends State<StatsPage> {
 
     Database.getAllUserDocs().then((value) {
       num sum = 0;
+      int numActive = 0;
       int unqual = 0;
       int qual = 0;
       int allIn = 0;
 
       value.forEach((element) {
-        if (element.totalHours > 0) {
+        if (element.totalHours > 0.1) {
           sum += element.totalHours;
+          numActive++;
 
           if (element.totalHours < 60) {
             unqual++;
@@ -48,7 +50,7 @@ class _StatsPageState extends State<StatsPage> {
 
       setState(() {
         _totalHours = sum;
-        _avgHours = sum / value.length;
+        _avgHours = sum / numActive;
         _numUnqual = unqual;
         _numQual = qual;
         _numAllIn = allIn;
